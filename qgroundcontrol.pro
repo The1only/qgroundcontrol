@@ -431,6 +431,7 @@ HEADERS += \
     src/api/QGCSettings.h \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
+    src/decodetiff.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -443,6 +444,7 @@ SOURCES += \
     src/api/QGCOptions.cc \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
+    src/decodetiff.cc
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \
@@ -1000,6 +1002,16 @@ INCLUDEPATH += \
     src/AutoPilotPlugins/Common \
     src/FirmwarePlugin \
     src/VehicleSetup \
+    /usr/local/include \
+
+#    ../gdal-3.2.1/gcore \
+#    ../gdal-3.2.1/port \
+#    ../gdal-3.2.1/ogr \
+#    ../gdal-3.2.1/frmts \
+#    ../gdal-3.2.1/ogrsf \
+
+#LIBS +=  ../gdal-3.2.1/libgdal.la
+LIBS +=  /usr/local/lib/libgdal.dylib
 
 HEADERS+= \
     src/AutoPilotPlugins/AutoPilotPlugin.h \
@@ -1435,4 +1447,5 @@ contains (CONFIG, QGC_DISABLE_INSTALLER_SETUP) {
 }
 
 DISTFILES += \
-    src/QmlControls/QGroundControl/Specific/qmldir
+    src/QmlControls/QGroundControl/Specific/qmldir \
+    user_config.pri

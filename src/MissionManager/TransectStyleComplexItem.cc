@@ -54,9 +54,9 @@ TransectStyleComplexItem::TransectStyleComplexItem(PlanMasterController* masterC
     , _terrainAdjustMaxClimbRateFact    (settingsGroup, _metaDataMap[terrainAdjustMaxClimbRateName])
     , _terrainAdjustMaxDescentRateFact  (settingsGroup, _metaDataMap[terrainAdjustMaxDescentRateName])
 {
-    _terrainQueryTimer.setInterval(qgcApp()->runningUnitTests() ? 10 : _terrainQueryTimeoutMsecs);
-    _terrainQueryTimer.setSingleShot(true);
-    connect(&_terrainQueryTimer, &QTimer::timeout, this, &TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo);
+    _TerrainQueryTimer.setInterval(qgcApp()->runningUnitTests() ? 10 : _TerrainQueryTimeoutMsecs);
+    _TerrainQueryTimer.setSingleShot(true);
+    connect(&_TerrainQueryTimer, &QTimer::timeout, this, &TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo);
 
     // The follow is used to compress multiple recalc calls in a row to into a single call.
     connect(this, &TransectStyleComplexItem::_updateFlightPathSegmentsSignal, this, &TransectStyleComplexItem::_updateFlightPathSegmentsDontCallDirectly,   Qt::QueuedConnection);
@@ -542,7 +542,7 @@ void TransectStyleComplexItem::_queryTransectsPathHeightInfo(void)
     if (_transects.count()) {
         // We don't actually send the query until this timer times out. This way we only send
         // the latest request if we get a bunch in a row.
-        _terrainQueryTimer.start();
+        _TerrainQueryTimer.start();
     }
 }
 

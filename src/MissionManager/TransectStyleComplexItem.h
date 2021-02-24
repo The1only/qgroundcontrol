@@ -213,7 +213,7 @@ protected:
     static const char* _jsonTerrainFlightSpeed;
     static const char* _jsonCameraShotsKey;
 
-    static const int _terrainQueryTimeoutMsecs=     1000;
+    static const int _TerrainQueryTimeoutMsecs=     1000;
     static const int _hoverAndCaptureDelaySeconds = 4;
 
 private slots:
@@ -241,5 +241,5 @@ private:
     BuildMissionItemsState_t _buildMissionItemsState(void) const;
 
     TerrainPolyPathQuery*       _currentTerrainFollowQuery =            nullptr;
-    QTimer                      _terrainQueryTimer;
+    QTimer                      _TerrainQueryTimer;
 };

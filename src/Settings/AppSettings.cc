@@ -34,6 +34,7 @@ const char* AppSettings::logDirectory =             QT_TRANSLATE_NOOP("AppSettin
 const char* AppSettings::videoDirectory =           QT_TRANSLATE_NOOP("AppSettings", "Video");
 const char* AppSettings::photoDirectory =           QT_TRANSLATE_NOOP("AppSettings", "Photo");
 const char* AppSettings::crashDirectory =           QT_TRANSLATE_NOOP("AppSettings", "CrashLogs");
+const char* AppSettings::elevationMap =             QT_TRANSLATE_NOOP("AppSettings", "Elevation");
 
 DECLARE_SETTINGGROUP(App, "")
 {
@@ -166,6 +167,7 @@ void AppSettings::_checkSavePathDirectories(void)
         savePathDir.mkdir(videoDirectory);
         savePathDir.mkdir(photoDirectory);
         savePathDir.mkdir(crashDirectory);
+        savePathDir.mkdir(elevationMap);
     }
 }
 
@@ -210,6 +212,16 @@ QString AppSettings::logSavePath(void)
     if (!path.isEmpty() && QDir(path).exists()) {
         QDir dir(path);
         return dir.filePath(logDirectory);
+    }
+    return QString();
+}
+
+QString AppSettings::elevationMapPath(void)
+{
+    QString path = savePath()->rawValue().toString();
+    if (!path.isEmpty() && QDir(path).exists()) {
+        QDir dir(path);
+        return dir.filePath(elevationMap);
     }
     return QString();
 }

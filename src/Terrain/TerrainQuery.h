@@ -12,6 +12,7 @@
 #include "TerrainTile.h"
 #include "QGCMapEngineData.h"
 #include "QGCLoggingCategory.h"
+#include "decodetiff.h"
 
 #include <QObject>
 #include <QGeoCoordinate>
@@ -116,8 +117,8 @@ class TerrainTileManager : public QObject {
 public:
     TerrainTileManager(void);
 
-    void addCoordinateQuery         (TerrainOfflineAirMapQuery* terrainQueryInterface, const QList<QGeoCoordinate>& coordinates);
-    void addPathQuery               (TerrainOfflineAirMapQuery* terrainQueryInterface, const QGeoCoordinate& startPoint, const QGeoCoordinate& endPoint);
+    void addCoordinateQuery         (TerrainOfflineAirMapQuery* TerrainQueryInterface, const QList<QGeoCoordinate>& coordinates);
+    void addPathQuery               (TerrainOfflineAirMapQuery* TerrainQueryInterface, const QGeoCoordinate& startPoint, const QGeoCoordinate& endPoint);
     bool getAltitudesForCoordinates (const QList<QGeoCoordinate>& coordinates, QList<double>& altitudes, bool& error);
 
     static QList<QGeoCoordinate> pathQueryToCoords(const QGeoCoordinate& fromCoord, const QGeoCoordinate& toCoord, double& distanceBetween, double& finalDistanceBetween);
@@ -138,7 +139,7 @@ private:
     };
 
     typedef struct {
-        TerrainOfflineAirMapQuery*  terrainQueryInterface;
+        TerrainOfflineAirMapQuery*  TerrainQueryInterface;
         QueryMode                   queryMode;
         double                      distanceBetween;        // Distance between each returned height
         double                      finalDistanceBetween;   // Distance between for final height
@@ -147,6 +148,7 @@ private:
 
     void    _tileFailed                         (void);
     QString _getTileHash                        (const QGeoCoordinate& coordinate);
+    class decodetiff            *dem_tiff;
 
     QList<QueuedRequestInfo_t>  _requestQueue;
     State                       _state = State::Idle;
@@ -196,7 +198,7 @@ private:
     State                       _state = State::Idle;
     const int                   _batchTimeout = 500;
     QTimer                      _batchTimer;
-    TerrainOfflineAirMapQuery   _terrainQuery;
+    TerrainOfflineAirMapQuery   _TerrainQuery;
 };
 
 // IMPORTANT NOTE: The terrain query objects below must continue to live until the the terrain system signals data back through them.
@@ -264,7 +266,7 @@ private slots:
 
 private:
     bool                        _autoDelete;
-    TerrainOfflineAirMapQuery   _terrainQuery;
+    TerrainOfflineAirMapQuery   _TerrainQuery;
 };
 
 Q_DECLARE_METATYPE(TerrainPathQuery::PathHeightInfo_t)
