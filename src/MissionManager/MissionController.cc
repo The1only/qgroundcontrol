@@ -924,23 +924,34 @@ bool MissionController::_loadTextMissionFile(QTextStream& stream, QmlObjectListM
 {
     bool firstItem = true;
     bool plannedHomePositionInFile = false;
+    bool eSmartMission = false;
 
     QString firstLine = stream.readLine();
     const QStringList& version = firstLine.split(" ");
 
     bool versionOk = false;
-    if (version.size() == 3 && version[0] == "QGC" && version[1] == "WPL") {
-        if (version[2] == "110") {
-            // ArduPilot file, planned home position is already in position 0
-            versionOk = true;
-            plannedHomePositionInFile = true;
-        } else if (version[2] == "120") {
-            // Old QGC file, no planned home position
+    if (version.size() == 2 && version[0] == "ESMART" ) {
+        if (version[1] == "101") {
+            // New eSmart format, no home position nor takeoff or landing only poles...
             versionOk = true;
             plannedHomePositionInFile = false;
+            eSmartMission = true;
         }
     }
-
+    else{
+        if (version.size() == 3 && version[0] == "QGC" && version[1] == "WPL") {
+            if (version[2] == "110") {
+                // ArduPilot file, planned home position is already in position 0
+                versionOk = true;
+                plannedHomePositionInFile = true;
+            } else if (version[2] == "120") {
+                // Old QGC file, no planned home position
+                versionOk = true;
+                plannedHomePositionInFile = false;
+            }
+        }
+    }
+// TERJE TO BE MODIFIED:::
     if (versionOk) {
         MissionSettingsItem* settingsItem = _addMissionSettings(visualItems);
 
@@ -950,6 +961,7 @@ bool MissionController::_loadTextMissionFile(QTextStream& stream, QmlObjectListM
                 if (firstItem && plannedHomePositionInFile) {
                     settingsItem->setInitialHomePositionFromUser(item->coordinate());
                 } else {
+
                     if (TakeoffMissionItem::isTakeoffCommand(static_cast<MAV_CMD>(item->command()))) {
                         // This needs to be a TakeoffMissionItem
                         TakeoffMissionItem* takeoffItem = new TakeoffMissionItem(_masterController, _flyView, settingsItem, true /* forLoad */, visualItems);

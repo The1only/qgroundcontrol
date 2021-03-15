@@ -19,6 +19,17 @@
 #include <unistd.h>
 #endif
 
+// Globale variables... not pretty but verry efficient in this case..
+QString            lastfile = nullptr;
+char               *pszSourceSRS = nullptr;
+std::vector<int>   anBandList;
+int                nOverview = -1;
+char             **papszOpenOptions = nullptr;
+
+OGRSpatialReferenceH hSrcSRS;
+OGRCoordinateTransformationH hCT;
+GDALDatasetH       hSrcDS;
+
 /*
 gdallocationinfo -wgs84 dtm1.tif  10.4902 60.44828
 */
@@ -26,10 +37,11 @@ QGC_LOGGING_CATEGORY(decodetiff, "decodetiff")
 
 decodetiff::decodetiff()
 {
-    this->lastfile = nullptr;
-    this->pszSourceSRS =  SanitizeSRS("WGS84");
-    this->hSrcSRS = nullptr;
-    this->hCT = nullptr;
+//    this->lastfile = nullptr;
+//    this->pszSourceSRS =  SanitizeSRS("WGS84");
+ //   this->hSrcSRS = nullptr;
+ //   this->hCT = nullptr;
+//    this->nOverview = -1;
 }
 
 // Fast surge for altitudes in a group of geoTIF files...
@@ -118,10 +130,10 @@ char *decodetiff::SanitizeSRS( const char *pszUserInput )
 /************************************************************************/
 int decodetiff::main_dem(const char *pszSrcFilename)
 {
-    this->lastfile = nullptr;
-    this->pszSourceSRS =  SanitizeSRS("WGS84");
-    this->hSrcSRS = nullptr;
-    this->hCT = nullptr;
+    lastfile = nullptr;
+    pszSourceSRS =  SanitizeSRS("WGS84");
+    hSrcSRS = nullptr;
+    hCT = nullptr;
 
     GDALAllRegister();
 
@@ -137,16 +149,16 @@ int decodetiff::main_dem(const char *pszSrcFilename)
 /* -------------------------------------------------------------------- */
 /*      Setup coordinate transformation, if required                    */
 /* -------------------------------------------------------------------- */
-    if( this->pszSourceSRS != nullptr && !EQUAL(this->pszSourceSRS,"-geoloc") )
+    if( pszSourceSRS != nullptr && !EQUAL(pszSourceSRS,"-geoloc") )
     {
-        hSrcSRS = OSRNewSpatialReference( this->pszSourceSRS );
+        hSrcSRS = OSRNewSpatialReference( pszSourceSRS );
         OSRSetAxisMappingStrategy(hSrcSRS, OAMS_TRADITIONAL_GIS_ORDER);
         auto hTrgSRS = GDALGetSpatialRef( hSrcDS );
         if( !hTrgSRS )
             return NO_DATA;
 
-        this->hCT = OCTNewCoordinateTransformation( hSrcSRS, hTrgSRS );
-        if( this->hCT == nullptr )
+        hCT = OCTNewCoordinateTransformation( hSrcSRS, hTrgSRS );
+        if( hCT == nullptr )
             return NO_DATA;
     }
 

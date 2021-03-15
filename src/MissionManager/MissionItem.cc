@@ -16,6 +16,7 @@
 #include "QGCApplication.h"
 #include "JsonHelper.h"
 #include "VisualMissionItem.h"
+#include "decodetiff.h"
 
 const char*  MissionItem::_jsonFrameKey =           "frame";
 const char*  MissionItem::_jsonCommandKey =         "command";
@@ -55,6 +56,9 @@ MissionItem::MissionItem(QObject* parent)
     connect(&_param1Fact, &Fact::rawValueChanged, this, &MissionItem::_param1Changed);
     connect(&_param2Fact, &Fact::rawValueChanged, this, &MissionItem::_param2Changed);
     connect(&_param3Fact, &Fact::rawValueChanged, this, &MissionItem::_param3Changed);
+
+    dem_tiff = new class decodetiff();
+
 }
 
 MissionItem::MissionItem(int             sequenceNumber,
@@ -169,6 +173,8 @@ void MissionItem::save(QJsonObject& json) const
 
 bool MissionItem::load(QTextStream &loadStream)
 {
+    eSmartMission = false;
+
     const QStringList &wpParams = loadStream.readLine().split("\t");
     if (wpParams.size() == 12) {
         setCommand((MAV_CMD)wpParams[3].toInt());   // Has to be first since it triggers defaults to be set, which are then override by below set calls
@@ -183,6 +189,23 @@ bool MissionItem::load(QTextStream &loadStream)
         setParam6(wpParams[9].toDouble());
         setParam7(wpParams[10].toDouble());
         setAutoContinue(wpParams[11].toInt() == 1 ? true : false);
+        return true;
+    }
+    // If eSmart mission... <seq num.> <lat> <lon>
+    if (wpParams.size() == 4) {
+        setCommand((MAV_CMD)16);   // Has to be first since it triggers defaults to be set, which are then override by below set calls
+        setSequenceNumber(wpParams[0].toInt());
+        setIsCurrentItem(false);
+        setFrame((MAV_FRAME) QGroundControlQmlGlobal::AltitudeModeTerrainFrame ); // Frame...
+        setParam1(0); // Param 1
+        setParam2(0); // Param 2
+        setParam3(0); // Param 3
+        setParam4(0); // Param 4
+        setParam5(wpParams[2].toDouble()); // Lon
+        setParam6(wpParams[1].toDouble()); // Lat
+        setParam7(wpParams[3].toDouble()); // Alt over ground (AGL)
+        setAutoContinue(true);// Auto Continue...
+        eSmartMission = true;
         return true;
     }
 

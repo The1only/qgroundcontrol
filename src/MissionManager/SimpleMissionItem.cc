@@ -289,9 +289,14 @@ void SimpleMissionItem::save(QJsonArray&  missionItems)
 bool SimpleMissionItem::load(QTextStream &loadStream)
 {
     bool success;
+
     if ((success = _missionItem.load(loadStream))) {
         if (specifiesAltitude()) {
-            _altitudeMode = _missionItem.relativeAltitude() ? QGroundControlQmlGlobal::AltitudeModeRelative : QGroundControlQmlGlobal::AltitudeModeAbsolute;
+            if(_missionItem.eSmartMission == true){
+                _altitudeMode = QGroundControlQmlGlobal::AltitudeModeAboveTerrain;
+            }else{
+                _altitudeMode =_missionItem.relativeAltitude() ? QGroundControlQmlGlobal::AltitudeModeRelative : QGroundControlQmlGlobal::AltitudeModeAbsolute;
+            }
             _altitudeFact.setRawValue(_missionItem._param7Fact.rawValue());
             _amslAltAboveTerrainFact.setRawValue(qQNaN());
         }

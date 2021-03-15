@@ -24,6 +24,7 @@
 #include "Fact.h"
 #include "QGCLoggingCategory.h"
 #include "QmlObjectListModel.h"
+#include "decodetiff.h"
 
 class SurveyComplexItem;
 class SimpleMissionItem;
@@ -74,6 +75,7 @@ public:
     double          param7          (void) const { return _param7Fact.rawValue().toDouble(); }
     QGeoCoordinate  coordinate      (void) const;
     int             doJumpId        (void) const { return _doJumpId; }
+    bool            eSmartMission;
 
     /// @return Flight speed change value if this item supports it. If not it returns NaN.
     double specifiedFlightSpeed(void) const;
@@ -118,6 +120,7 @@ private slots:
 private:
     bool _convertJsonV1ToV2(const QJsonObject& json, QJsonObject& v2Json, QString& errorString);
     bool _convertJsonV2ToV3(QJsonObject& json, QString& errorString);
+    class decodetiff            *dem_tiff;
 
     int     _sequenceNumber;
     int     _doJumpId;

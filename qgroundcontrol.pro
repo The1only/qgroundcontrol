@@ -1445,5 +1445,6 @@ contains (CONFIG, QGC_DISABLE_INSTALLER_SETUP) {
 }
 
 DISTFILES += \
+    mission.txt \
     src/QmlControls/QGroundControl/Specific/qmldir \
     user_config.pri

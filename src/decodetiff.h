@@ -19,24 +19,24 @@ class decodetiff
 
 public:
     decodetiff();
-
     bool decode(const QGeoCoordinate& coordinate, QList<double>& altitudes, bool reportallways);
-    char *SanitizeSRS( const char *pszUserInput );
 
+private:
     int main_dem(const char *pszSrcFilename);
     double getalt_dem(const double *pszLocX, const double *pszLocY);
     void close_dem();
-
-private:
+    char *SanitizeSRS( const char *pszUserInput );
+/*
     OGRSpatialReferenceH hSrcSRS;
     OGRCoordinateTransformationH hCT;
-    GDALDatasetH hSrcDS;
+    GDALDatasetH       hSrcDS;
 
     QString            lastfile;
     char               *pszSourceSRS;
     std::vector<int>   anBandList;
-    int                nOverview = -1;
+    int                nOverview;
     char             **papszOpenOptions = nullptr;
+    */
 };
 
 #endif // DECODETIFF_H
