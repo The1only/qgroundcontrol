@@ -40,6 +40,8 @@ MacBuild {
     ICON                = $${SOURCE_DIR}/resources/icons/macx.icns
     OTHER_FILES        += Custom-Info.plist
     LIBS               += -framework ApplicationServices
+    INCLUDEPATH        += /usr/local/include
+    LIBS               += /usr/local/lib/libgdal.dylib
 }
 
 LinuxBuild {
@@ -50,6 +52,11 @@ WindowsBuild {
     RC_ICONS = resources/icons/qgroundcontrol.ico
     CONFIG += resources_big
 }
+
+#ERROR MUST BE FIXED...
+AndroidBuild {
+}
+
 
 #
 # Branding
@@ -1002,16 +1009,7 @@ INCLUDEPATH += \
     src/AutoPilotPlugins/Common \
     src/FirmwarePlugin \
     src/VehicleSetup \
-    /usr/local/include \
 
-#    ../gdal-3.2.1/gcore \
-#    ../gdal-3.2.1/port \
-#    ../gdal-3.2.1/ogr \
-#    ../gdal-3.2.1/frmts \
-#    ../gdal-3.2.1/ogrsf \
-
-#LIBS +=  ../gdal-3.2.1/libgdal.la
-LIBS +=  /usr/local/lib/libgdal.dylib
 
 HEADERS+= \
     src/AutoPilotPlugins/AutoPilotPlugin.h \

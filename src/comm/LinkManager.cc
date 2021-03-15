@@ -74,7 +74,9 @@ LinkManager::~LinkManager()
 {
 #ifndef __mobile__
 #ifndef NO_SERIAL_LINK
-    delete _nmeaPort;
+    if (_nmeaPort) {
+        delete _nmeaPort;
+    }
 #endif
 #endif
 }

@@ -28,6 +28,7 @@
 #include <cmath>
 
 #define ESMART
+#define AirMap
 
 QGC_LOGGING_CATEGORY(TerrainQueryLog, "TerrainQueryLog")
 QGC_LOGGING_CATEGORY(TerrainQueryVerboseLog, "TerrainQueryVerboseLog")
@@ -437,44 +438,45 @@ bool TerrainTileManager::getAltitudesForCoordinates(const QList<QGeoCoordinate>&
         QString tileHash = _getTileHash(coordinate);
         qCDebug(TerrainQueryLog) << "TerrainTileManager::getAltitudesForCoordinates hash:coordinate" << tileHash << coordinate;
 
-        _tilesMutex.lock();
 #ifdef ESMART
-        if (true){ //_tiles.contains(tileHash)) {
-            double elevation = dem_tiff->decode(coordinate);
-            qCWarning(TerrainQueryLog) << "getAltitudesForCoordinates: at position: " <<  coordinate << " The altitude is: " << elevation;
-            altitudes.push_back(elevation);
-        }
-
-#else
-        if (_tiles.contains(tileHash)) {
-            double elevation = _tiles[tileHash].elevation(coordinate);
-            if (qIsNaN(elevation)) {
-                error = true;
-                qCWarning(TerrainQueryLog) << "TerrainTileManager::getAltitudesForCoordinates Internal Error: missing elevation in tile cache";
+    #ifdef AirMap
+        if(!dem_tiff->decode(coordinate, altitudes, false))  // Look for geoTIF do NOT report anything in altitudes if no data found...
+    #else
+        if(!dem_tiff->decode(coordinate, altitudes, true))  // Look for geoTIF do report NODATA in altitudes if no data found...
+    #endif
+#endif
+        {
+#ifdef AirMap                                               // Look for altitude in AirMap ...
+            _tilesMutex.lock();
+            if (_tiles.contains(tileHash)) {
+                double elevation = _tiles[tileHash].elevation(coordinate);
+                if (qIsNaN(elevation)) {
+                    error = true;
+                    qCWarning(TerrainQueryLog) << "TerrainTileManager::getAltitudesForCoordinates Internal Error: missing elevation in tile cache";
+                } else {
+                    qCDebug(TerrainQueryLog) << "TerrainTileManager::getAltitudesForCoordinates returning elevation from tile cache" << elevation;
+                }
+                altitudes.push_back(elevation);
             } else {
-                qCDebug(TerrainQueryLog) << "TerrainTileManager::getAltitudesForCoordinates returning elevation from tile cache" << elevation;
-            }
-            altitudes.push_back(elevation);
-        } else {
-            if (_state != State::Downloading) {
-                QNetworkRequest request = getQGCMapEngine()->urlFactory()->getTileURL("Airmap Elevation", getQGCMapEngine()->urlFactory()->long2tileX("Airmap Elevation",coordinate.longitude(), 1), getQGCMapEngine()->urlFactory()->lat2tileY("Airmap Elevation", coordinate.latitude(), 1), 1, &_networkManager);
-                qCDebug(TerrainQueryLog) << "TerrainTileManager::getAltitudesForCoordinates query from database" << request.url();
-                QGeoTileSpec spec;
-                spec.setX(getQGCMapEngine()->urlFactory()->long2tileX("Airmap Elevation", coordinate.longitude(), 1));
-                spec.setY(getQGCMapEngine()->urlFactory()->lat2tileY("Airmap Elevation", coordinate.latitude(), 1));
-                spec.setZoom(1);
-                spec.setMapId(getQGCMapEngine()->urlFactory()->getIdFromType("Airmap Elevation"));
-                QGeoTiledMapReplyQGC* reply = new QGeoTiledMapReplyQGC(&_networkManager, request, spec);
-                connect(reply, &QGeoTiledMapReplyQGC::terrainDone, this, &TerrainTileManager::_terrainDone);
-                _state = State::Downloading;
+                if (_state != State::Downloading) {
+                    QNetworkRequest request = getQGCMapEngine()->urlFactory()->getTileURL("Airmap Elevation", getQGCMapEngine()->urlFactory()->long2tileX("Airmap Elevation",coordinate.longitude(), 1), getQGCMapEngine()->urlFactory()->lat2tileY("Airmap Elevation", coordinate.latitude(), 1), 1, &_networkManager);
+                    qCDebug(TerrainQueryLog) << "TerrainTileManager::getAltitudesForCoordinates query from database" << request.url();
+                    QGeoTileSpec spec;
+                    spec.setX(getQGCMapEngine()->urlFactory()->long2tileX("Airmap Elevation", coordinate.longitude(), 1));
+                    spec.setY(getQGCMapEngine()->urlFactory()->lat2tileY("Airmap Elevation", coordinate.latitude(), 1));
+                    spec.setZoom(1);
+                    spec.setMapId(getQGCMapEngine()->urlFactory()->getIdFromType("Airmap Elevation"));
+                    QGeoTiledMapReplyQGC* reply = new QGeoTiledMapReplyQGC(&_networkManager, request, spec);
+                    connect(reply, &QGeoTiledMapReplyQGC::terrainDone, this, &TerrainTileManager::_terrainDone);
+                    _state = State::Downloading;
+                }
+                _tilesMutex.unlock();
+                return false;
             }
             _tilesMutex.unlock();
-            return false;
-        }
 #endif
-        _tilesMutex.unlock();
+        }
     }
-
     return true;
 }
 

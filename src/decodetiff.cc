@@ -10,8 +10,7 @@
 #include "cpl_string.h"
 #include "ogr_spatialref.h"
 #include "cpl_minixml.h"
-//#include "gdalallregister.cpp"
-//#include "commonutils.h"
+
 #include <vector>
 
 #ifdef _WIN32
@@ -27,30 +26,62 @@ QGC_LOGGING_CATEGORY(decodetiff, "decodetiff")
 
 decodetiff::decodetiff()
 {
-
+    this->lastfile = nullptr;
+    this->pszSourceSRS =  SanitizeSRS("WGS84");
+    this->hSrcSRS = nullptr;
+    this->hCT = nullptr;
 }
 
-double decodetiff::decode(const QGeoCoordinate& coordinate)
+// Fast surge for altitudes in a group of geoTIF files...
+bool decodetiff::decode(const QGeoCoordinate& coordinate, QList<double>& altitudes, bool reportallways)
 {
     double elevation = NO_DATA;
-    QString path = qgcApp()->toolbox()->settingsManager()->appSettings()->elevationMapPath();
-    QDirIterator it(path, QStringList() << "*.tif", QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()){
-        QString file = it.next();
-        if(file != ""){
-            qDebug() << "decodetiff::decode file name: " << file;
-            double lat = coordinate.latitude();
-            double lon = coordinate.longitude();
-            elevation = main_dem(file.toLocal8Bit().data(), &lon,&lat);
-            if(elevation != NO_DATA && elevation != NO_FILE){
-                break;
+    double lat = coordinate.latitude();
+    double lon = coordinate.longitude();
+
+    // First try the last file... This speeds up the system over 10 times...
+    if(lastfile != nullptr && lastfile != ""){
+        elevation = getalt_dem(&lon,&lat);
+        if(elevation == NO_DATA || elevation == NO_FILE){
+            lastfile="";
+            close_dem();
+        }
+    }
+
+    // If we got no data in cach then start look in all the files...
+    if(elevation == NO_DATA || elevation == NO_FILE){
+        QString path = qgcApp()->toolbox()->settingsManager()->appSettings()->elevationMapPath();
+        QDirIterator it(path, QStringList() << "*.tif", QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()){
+            QString file = it.next();
+            if(file != ""){
+                if(main_dem(file.toLocal8Bit().data())==0){
+                    elevation = getalt_dem(&lon,&lat);
+                    if(elevation == NO_DATA || elevation == NO_FILE){
+                        lastfile="";
+                        close_dem();
+                    }
+                }
+                if(elevation != NO_DATA && elevation != NO_FILE){
+                    lastfile = file;
+                    break;
+                }
             }
         }
     }
+
+    // If no elevation data found then report nanf ... or not...
     if(elevation == NO_DATA || elevation == NO_FILE){
-        elevation = nanf(nullptr);
+        if(reportallways){
+            elevation = nanf(nullptr);
+            altitudes.push_back(elevation);
+        }
+        return false;
     }
-    return elevation;
+
+    // Data found report altitude...
+    altitudes.push_back(elevation);
+    return true;
 }
 
 #define TERJE
@@ -60,8 +91,7 @@ double decodetiff::decode(const QGeoCoordinate& coordinate)
 /*                             SanitizeSRS                              */
 /************************************************************************/
 
-static char *SanitizeSRS( const char *pszUserInput )
-
+char *decodetiff::SanitizeSRS( const char *pszUserInput )
 {
     CPLErrorReset();
 
@@ -75,7 +105,7 @@ static char *SanitizeSRS( const char *pszUserInput )
         CPLError( CE_Failure, CPLE_AppDefined,
                   "Translating source or target SRS failed:\n%s",
                   pszUserInput );
-        exit( 1 );
+        return nullptr;;
     }
 
     OSRDestroySpatialReference( hSRS );
@@ -86,21 +116,19 @@ static char *SanitizeSRS( const char *pszUserInput )
 /************************************************************************/
 /*                                main()                                */
 /************************************************************************/
-double decodetiff::main_dem(const char *pszSrcFilename, const double *pszLocX, const double *pszLocY)
+int decodetiff::main_dem(const char *pszSrcFilename)
 {
-    char               *pszSourceSRS =  SanitizeSRS("WGS84");
-    std::vector<int>   anBandList;
-    int                nOverview = -1;
-    char             **papszOpenOptions = nullptr;
-    double             value = NO_DATA;
+    this->lastfile = nullptr;
+    this->pszSourceSRS =  SanitizeSRS("WGS84");
+    this->hSrcSRS = nullptr;
+    this->hCT = nullptr;
 
     GDALAllRegister();
 
 /* -------------------------------------------------------------------- */
 /*      Open source file.                                               */
 /* -------------------------------------------------------------------- */
-    GDALDatasetH hSrcDS
-        = GDALOpenEx( pszSrcFilename, GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR,
+    hSrcDS = GDALOpenEx( pszSrcFilename, GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR,
                       nullptr,
                       papszOpenOptions, nullptr );
     if( hSrcDS == nullptr )
@@ -109,19 +137,16 @@ double decodetiff::main_dem(const char *pszSrcFilename, const double *pszLocX, c
 /* -------------------------------------------------------------------- */
 /*      Setup coordinate transformation, if required                    */
 /* -------------------------------------------------------------------- */
-    OGRSpatialReferenceH hSrcSRS = nullptr;
-    OGRCoordinateTransformationH hCT = nullptr;
-    if( pszSourceSRS != nullptr && !EQUAL(pszSourceSRS,"-geoloc") )
+    if( this->pszSourceSRS != nullptr && !EQUAL(this->pszSourceSRS,"-geoloc") )
     {
-
-        hSrcSRS = OSRNewSpatialReference( pszSourceSRS );
+        hSrcSRS = OSRNewSpatialReference( this->pszSourceSRS );
         OSRSetAxisMappingStrategy(hSrcSRS, OAMS_TRADITIONAL_GIS_ORDER);
         auto hTrgSRS = GDALGetSpatialRef( hSrcDS );
         if( !hTrgSRS )
             return NO_DATA;
 
-        hCT = OCTNewCoordinateTransformation( hSrcSRS, hTrgSRS );
-        if( hCT == nullptr )
+        this->hCT = OCTNewCoordinateTransformation( hSrcSRS, hTrgSRS );
+        if( this->hCT == nullptr )
             return NO_DATA;
     }
 
@@ -133,40 +158,22 @@ double decodetiff::main_dem(const char *pszSrcFilename, const double *pszLocX, c
         for( int i = 0; i < GDALGetRasterCount( hSrcDS ); i++ )
             anBandList.push_back( i+1 );
     }
+    return 0;
+}
 
 /* -------------------------------------------------------------------- */
 /*      Turn the location into a pixel and line location.               */
 /* -------------------------------------------------------------------- */
+double decodetiff::getalt_dem(const double *pszLocX, const double *pszLocY)
+{
+    double value = NO_DATA;
     int inputAvailable = 1;
     double dfGeoX;
     double dfGeoY;
     CPLString osXML;
 
-    if( pszLocX == nullptr && pszLocY == nullptr )
-    {
-        // Is it an interactive terminal ?
-        if( isatty(static_cast<int>(fileno(stdin))) )
-        {
-            if( pszSourceSRS != nullptr )
-            {
-                fprintf(stderr, "Enter X Y values separated by space, and press Return.\n");
-            }
-            else
-            {
-                fprintf(stderr, "Enter pixel line values separated by space, and press Return.\n");
-            }
-        }
-
-        if (fscanf(stdin, "%lf %lf", &dfGeoX, &dfGeoY) != 2)
-        {
-            inputAvailable = 0;
-        }
-    }
-    else
-    {
-        dfGeoX = *pszLocX;
-        dfGeoY = *pszLocY;
-    }
+    dfGeoX = *pszLocX;
+    dfGeoY = *pszLocY;
 
     while (inputAvailable)
     {
@@ -295,23 +302,27 @@ double decodetiff::main_dem(const char *pszSrcFilename, const double *pszLocX, c
             inputAvailable = 0;
         }
     }
+    return value;
+}
+
 
 /* -------------------------------------------------------------------- */
 /*      Cleanup                                                         */
-/* -------------------------------------------------------------------- */
+
+void decodetiff::close_dem()
+{
+    /*
     if (hCT) {
         OSRDestroySpatialReference( hSrcSRS );
         OCTDestroyCoordinateTransformation( hCT );
     }
-
+*/
     GDALClose(hSrcDS);
-
     GDALDumpOpenDatasets( stderr );
     GDALDestroyDriverManager();
     CPLFree(pszSourceSRS);
     CSLDestroy(papszOpenOptions);
 
-    return value;
 }
 #endif
 
