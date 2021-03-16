@@ -26,7 +26,7 @@ private:
     double getalt_dem(const double *pszLocX, const double *pszLocY);
     void close_dem();
     char *SanitizeSRS( const char *pszUserInput );
-/*
+
     OGRSpatialReferenceH hSrcSRS;
     OGRCoordinateTransformationH hCT;
     GDALDatasetH       hSrcDS;
@@ -36,7 +36,7 @@ private:
     std::vector<int>   anBandList;
     int                nOverview;
     char             **papszOpenOptions = nullptr;
-    */
+
 };
 
 #endif // DECODETIFF_H

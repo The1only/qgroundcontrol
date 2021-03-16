@@ -24,7 +24,6 @@
 #include "Fact.h"
 #include "QGCLoggingCategory.h"
 #include "QmlObjectListModel.h"
-#include "decodetiff.h"
 
 class SurveyComplexItem;
 class SimpleMissionItem;

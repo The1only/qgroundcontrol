@@ -16,7 +16,6 @@
 #include "QGCApplication.h"
 #include "JsonHelper.h"
 #include "VisualMissionItem.h"
-#include "decodetiff.h"
 
 const char*  MissionItem::_jsonFrameKey =           "frame";
 const char*  MissionItem::_jsonCommandKey =         "command";
@@ -56,8 +55,6 @@ MissionItem::MissionItem(QObject* parent)
     connect(&_param1Fact, &Fact::rawValueChanged, this, &MissionItem::_param1Changed);
     connect(&_param2Fact, &Fact::rawValueChanged, this, &MissionItem::_param2Changed);
     connect(&_param3Fact, &Fact::rawValueChanged, this, &MissionItem::_param3Changed);
-
-    dem_tiff = new class decodetiff();
 
 }
 

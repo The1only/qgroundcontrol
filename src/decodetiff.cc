@@ -19,17 +19,6 @@
 #include <unistd.h>
 #endif
 
-// Globale variables... not pretty but verry efficient in this case..
-QString            lastfile = nullptr;
-char               *pszSourceSRS = nullptr;
-std::vector<int>   anBandList;
-int                nOverview = -1;
-char             **papszOpenOptions = nullptr;
-
-OGRSpatialReferenceH hSrcSRS;
-OGRCoordinateTransformationH hCT;
-GDALDatasetH       hSrcDS;
-
 /*
 gdallocationinfo -wgs84 dtm1.tif  10.4902 60.44828
 */
@@ -37,11 +26,11 @@ QGC_LOGGING_CATEGORY(decodetiff, "decodetiff")
 
 decodetiff::decodetiff()
 {
-//    this->lastfile = nullptr;
-//    this->pszSourceSRS =  SanitizeSRS("WGS84");
- //   this->hSrcSRS = nullptr;
- //   this->hCT = nullptr;
-//    this->nOverview = -1;
+    this->lastfile = nullptr;
+    this->pszSourceSRS =  SanitizeSRS("WGS84");
+    this->hSrcSRS = nullptr;
+    this->hCT = nullptr;
+    this->nOverview = -1;
 }
 
 // Fast surge for altitudes in a group of geoTIF files...
@@ -95,9 +84,6 @@ bool decodetiff::decode(const QGeoCoordinate& coordinate, QList<double>& altitud
     altitudes.push_back(elevation);
     return true;
 }
-
-#define TERJE
-#ifdef TERJE
 
 /************************************************************************/
 /*                             SanitizeSRS                              */
@@ -336,5 +322,5 @@ void decodetiff::close_dem()
     CSLDestroy(papszOpenOptions);
 
 }
-#endif
+
 

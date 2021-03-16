@@ -951,7 +951,6 @@ bool MissionController::_loadTextMissionFile(QTextStream& stream, QmlObjectListM
             }
         }
     }
-// TERJE TO BE MODIFIED:::
     if (versionOk) {
         MissionSettingsItem* settingsItem = _addMissionSettings(visualItems);
 
