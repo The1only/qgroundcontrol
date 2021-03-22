@@ -36,26 +36,31 @@ QML_IMPORT_PATH += $$PWD/src/QmlControls
 #
 
 MacBuild {
-    QMAKE_INFO_PLIST    = Custom-Info.plist
-    ICON                = $${SOURCE_DIR}/resources/icons/macx.icns
-    OTHER_FILES        += Custom-Info.plist
-    LIBS               += -framework ApplicationServices
-    INCLUDEPATH        += /usr/local/include
-    LIBS               += /usr/local/lib/libgdal.dylib    
-    LIBS               += /usr/local/opt/curl/lib/libcurl.dylib
+    QMAKE_INFO_PLIST = Custom-Info.plist
+    ICON             = $${SOURCE_DIR}/resources/icons/macx.icns
+    OTHER_FILES     += Custom-Info.plist
+    LIBS            += -framework ApplicationServices
+    INCLUDEPATH     += /usr/local/include
+    LIBS            += /usr/local/lib/libgdal.dylib
+    LIBS            += /usr/local/opt/curl/lib/libcurl.dylib
 
 #  export CPPFLAGS="-I/usr/local/opt/curl/include"
 
 }
 
 LinuxBuild {
-    CONFIG  += qesp_linux_udev
+    CONFIG	    += qesp_linux_udev
+    INCLUDEPATH     += /usr/local/include
+    LIBS            += /usr/local/lib/libgdal.dylib
+    LIBS            += /usr/local/opt/curl/lib/libcurl.dylib
 }
 
 WindowsBuild {
-    RC_ICONS = resources/icons/qgroundcontrol.ico
-    CONFIG  += resources_big
-
+    RC_ICONS	     = resources/icons/qgroundcontrol.ico
+    CONFIG	    += resources_big
+    INCLUDEPATH     += C:\OSGeo4W64\include
+    LIBS            += C:\OSGeo4W64\lib\gdal_i.lib
+    PROJ_LIB        += C:\OSGeo4W64\share\proj
 }
 
 #ERROR MUST BE FIXED...
