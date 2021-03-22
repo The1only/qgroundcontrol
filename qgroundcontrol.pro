@@ -41,7 +41,11 @@ MacBuild {
     OTHER_FILES        += Custom-Info.plist
     LIBS               += -framework ApplicationServices
     INCLUDEPATH        += /usr/local/include
-    LIBS               += /usr/local/lib/libgdal.dylib
+    LIBS               += /usr/local/lib/libgdal.dylib    
+    LIBS               += /usr/local/opt/curl/lib/libcurl.dylib
+
+#  export CPPFLAGS="-I/usr/local/opt/curl/include"
+
 }
 
 LinuxBuild {
@@ -50,7 +54,8 @@ LinuxBuild {
 
 WindowsBuild {
     RC_ICONS = resources/icons/qgroundcontrol.ico
-    CONFIG += resources_big
+    CONFIG  += resources_big
+
 }
 
 #ERROR MUST BE FIXED...
@@ -438,7 +443,8 @@ HEADERS += \
     src/api/QGCSettings.h \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
-    src/decodetiff.h
+    src/decodetiff.h \
+    src/emailclient.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -451,7 +457,8 @@ SOURCES += \
     src/api/QGCOptions.cc \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
-    src/decodetiff.cc
+    src/decodetiff.cc \
+    src/emailclient.cpp
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \

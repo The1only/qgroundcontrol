@@ -27,6 +27,8 @@ private:
     void close_dem();
     char *SanitizeSRS( const char *pszUserInput );
 
+    void SendEmail(QString mail, QString filetosend, double lat, double lon);
+
     OGRSpatialReferenceH hSrcSRS;
     OGRCoordinateTransformationH hCT;
     GDALDatasetH       hSrcDS;

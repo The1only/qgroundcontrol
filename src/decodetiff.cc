@@ -39,6 +39,7 @@ bool decodetiff::decode(const QGeoCoordinate& coordinate, QList<double>& altitud
     double elevation = NO_DATA;
     double lat = coordinate.latitude();
     double lon = coordinate.longitude();
+    int num = 0;
 
     // First try the last file... This speeds up the system over 10 times...
     if(lastfile != nullptr && lastfile != ""){
@@ -309,7 +310,7 @@ double decodetiff::getalt_dem(const double *pszLocX, const double *pszLocY)
 
 void decodetiff::close_dem()
 {
-    /*
+/*
     if (hCT) {
         OSRDestroySpatialReference( hSrcSRS );
         OCTDestroyCoordinateTransformation( hCT );
@@ -322,5 +323,20 @@ void decodetiff::close_dem()
     CSLDestroy(papszOpenOptions);
 
 }
+//    EmailClient *email = new EmailClient("tekno4","bile-kven-Ertne-venn-2015","smtp.domeneshop.no",465,3000);
+
+#include <QDesktopServices>
+#include "emailclient.h"
+
+void decodetiff::SendEmail(QString mail, QString filetosend, double lat, double lon)
+{
+    QList <QString> file;
+    file.append(filetosend);
+
+    QString message = "\nURL: https://www.google.com/maps/search/?api=1&query="+QString::number(lat)+","+QString::number(lon)+"\n";
+    EmailClient *email = new EmailClient("username","password","smtp.mail_server.no",465,3000);
+    email->sendMail("to_mail@9tek.no","Header",message,file);
+}
+
 
 
