@@ -22,6 +22,8 @@
 #include "QGCApplication.h"
 #include "AppMessages.h"
 #include "SerialLink.h"
+#include <QtQml>
+#include "hellocpp.h"
 
 #ifndef __mobile__
     #include "QGCSerialPortInfo.h"
@@ -222,6 +224,7 @@ bool checkAndroidWritePermission() {
 
 int main(int argc, char *argv[])
 {
+qmlRegisterType<HelloCpp>("HelloCpp", 1, 0, "HelloCpp");
 #ifndef __mobile__
     // We make the runguard key different for custom and non custom
     // builds, so they can be executed together in the same device.

@@ -39,7 +39,7 @@ bool decodetiff::decode(const QGeoCoordinate& coordinate, QList<double>& altitud
     double elevation = NO_DATA;
     double lat = coordinate.latitude();
     double lon = coordinate.longitude();
-    int num = 0;
+//    int num = 0;
 
     // First try the last file... This speeds up the system over 10 times...
     if(lastfile != nullptr && lastfile != ""){
