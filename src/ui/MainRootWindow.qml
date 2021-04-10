@@ -12,7 +12,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Dialogs  1.3
 import QtQuick.Layouts  1.11
 import QtQuick.Window   2.11
-import HelloCpp 1.0
+import SosCaller 1.0
 
 import QGroundControl               1.0
 import QGroundControl.Palette       1.0
@@ -729,7 +729,7 @@ ApplicationWindow {
 //    sosHandling {
 //        id: sosHandler
 //    }
-    HelloCpp {
+    SosCaller {
         id: demo
     }
     Rectangle{

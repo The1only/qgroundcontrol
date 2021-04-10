@@ -450,7 +450,7 @@ HEADERS += \
     src/GPS/Drivers/src/base_station.h \
     src/decodetiff.h \
     src/emailclient.h \
-    src/hellocpp.h
+    src/sosCaller.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -465,7 +465,7 @@ SOURCES += \
     src/api/QmlComponentInfo.cc \
     src/decodetiff.cc \
     src/emailclient.cpp \
-    src/hellocpp.cpp
+    src/sosCaller.cpp
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \
