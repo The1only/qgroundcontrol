@@ -37,7 +37,17 @@ QGCViewDialog {
         anchors.margins:    ScreenTools.defaultFontPixelWidth
         anchors.left:       categoryLabel.right
         anchors.right:      parent.right
-        model:              QGroundControl.missionCommandTree.categoriesForVehicle(vehicle)
+
+        function findCategory(model, criteria) {
+          for(var i = 0; i < Object.keys(model).length; ++i) {
+              console.log(model)
+              if (criteria == model[i]) {
+                  return [model[i]]
+              }}
+          return null
+        }
+
+        model:              findCategory(QGroundControl.missionCommandTree.categoriesForVehicle(vehicle), "Basic")
 
         function categorySelected(category) {
             commandList.model = QGroundControl.missionCommandTree.getCommandsForCategory(vehicle, category, flyThroughCommandsAllowed)
