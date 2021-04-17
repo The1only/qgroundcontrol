@@ -56,7 +56,7 @@ LinuxBuild {
 }
 
 WindowsBuild {
-    RC_ICONS	     = resources/icons/qgroundcontrol.ico
+    RC_ICONS	     = resources/icons/esmart.ico
     CONFIG	    += resources_big
     INCLUDEPATH     += C:\OSGeo4W64\include
     LIBS            += C:\OSGeo4W64\lib\gdal_i.lib
