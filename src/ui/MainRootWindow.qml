@@ -392,7 +392,7 @@ ApplicationWindow {
                         height:             _toolButtonHeight
                         Layout.fillWidth:   true
                         text:               qsTr("Application Settings")
-                        imageResource:      "/res/QGCLogoFull"
+                        imageResource:      "/res/esmart.png"
                         imageColor:         "transparent"
                         visible:            !QGroundControl.corePlugin.options.combineSettingsAndSetup
                         onClicked: {
@@ -734,6 +734,7 @@ ApplicationWindow {
     }
     Rectangle{
                id: sosCallDialogue
+               visible: false
                width: 250
                height: 250
                anchors.right: parent.right
