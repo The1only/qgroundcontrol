@@ -1123,11 +1123,11 @@ Rectangle {
 
                     Item { width: 1; height: _margins }
                     QGCLabel {
-                        text:               qsTr("%1 Version").arg(QGroundControl.appName)
+                        text:               "eSmart Inspection App"
                         Layout.alignment:   Qt.AlignHCenter
                     }
                     QGCLabel {
-                        text:               QGroundControl.qgcVersion
+                        text:               "eSmart - Build Version 1.0"
                         Layout.alignment:   Qt.AlignHCenter
                     }
                 } // settingsColumn
