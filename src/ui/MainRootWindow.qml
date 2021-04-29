@@ -13,7 +13,7 @@ import QtQuick.Dialogs  1.3
 import QtQuick.Layouts  1.11
 import QtQuick.Window   2.11
 import SosCaller 1.0
-
+import FlightDataFetcher 1.0
 import QGroundControl               1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.Controls      1.0
@@ -774,4 +774,25 @@ ApplicationWindow {
 //        EmailClient *email = new EmailClient("username","password","smtp.mail_server.no",465,3000);
 //        email->sendMail("to_mail@9tek.no","Header",message,file);
 //    }
+
+    /* Calling API */
+    FlightDataFetcher{
+        id: fDF
+    }
+
+       Button {
+           id: getCoordinatesButton
+           text: "Get Coordinates"
+           anchors.bottomMargin: 10
+           anchors.right: parent.right
+           anchors.rightMargin: 10
+           anchors.bottom: parent.bottom
+           onClicked: {
+                fDF.printMessage("Fetching Data Process Initiated");
+                fDF.callApi();
+           }
+       }
+
+
+
 }

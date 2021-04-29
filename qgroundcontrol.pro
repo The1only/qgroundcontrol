@@ -450,6 +450,7 @@ HEADERS += \
     src/GPS/Drivers/src/base_station.h \
     src/decodetiff.h \
     src/emailclient.h \
+    src/flightdatafetcher.h \
     src/sosCaller.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
@@ -465,6 +466,7 @@ SOURCES += \
     src/api/QmlComponentInfo.cc \
     src/decodetiff.cc \
     src/emailclient.cpp \
+    src/flightdatafetcher.cpp \
     src/sosCaller.cpp
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
