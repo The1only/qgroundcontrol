@@ -60,7 +60,7 @@ LinuxBuild {
 }
 
 WindowsBuild {
-    RC_ICONS	     = resources/icons/qgroundcontrol.ico
+    RC_ICONS	     = resources/icons/esmart.ico
     CONFIG	    += resources_big
     INCLUDEPATH     += C:\OSGeo4W64\include
     LIBS            += C:\OSGeo4W64\lib\gdal_i.lib
@@ -378,7 +378,7 @@ CustomBuild {
         RESOURCES += $$PWD/resources/InstrumentValueIcons/InstrumentValueIcons.qrc
     }
 } else {
-    DEFINES += QGC_APPLICATION_NAME=\"\\\"QGroundControl\\\"\"
+    DEFINES += QGC_APPLICATION_NAME=\"\\\"eSmart_Inspection_App\\\"\"
     DEFINES += QGC_ORG_NAME=\"\\\"QGroundControl.org\\\"\"
     DEFINES += QGC_ORG_DOMAIN=\"\\\"org.qgroundcontrol\\\"\"
     RESOURCES += \
@@ -459,7 +459,7 @@ HEADERS += \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
     src/decodetiff.h \
-
+    
 #    src/emailclient.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {

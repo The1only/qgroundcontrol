@@ -22,6 +22,9 @@
 #include "QGCApplication.h"
 #include "AppMessages.h"
 #include "SerialLink.h"
+#include <QtQml>
+#include "sosCaller.h"
+#include "flightdatafetcher.h"
 
 #ifndef __mobile__
     #include "QGCSerialPortInfo.h"
@@ -222,6 +225,8 @@ bool checkAndroidWritePermission() {
 
 int main(int argc, char *argv[])
 {
+qmlRegisterType<SosCaller>("SosCaller", 1, 0, "SosCaller");
+qmlRegisterType<FlightDataFetcher>("FlightDataFetcher", 1, 0, "FlightDataFetcher");
 #ifndef __mobile__
     // We make the runguard key different for custom and non custom
     // builds, so they can be executed together in the same device.

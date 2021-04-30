@@ -195,6 +195,7 @@ void EmailClient::disconnected()
 void EmailClient::connected()
 {
     qDebug() << "Connected to host.";
+
 }
 
 void EmailClient::readyRead()

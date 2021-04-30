@@ -12,7 +12,8 @@ import QtQuick.Controls 2.4
 import QtQuick.Dialogs  1.3
 import QtQuick.Layouts  1.11
 import QtQuick.Window   2.11
-
+import SosCaller 1.0
+import FlightDataFetcher 1.0
 import QGroundControl               1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.Controls      1.0
@@ -391,7 +392,7 @@ ApplicationWindow {
                         height:             _toolButtonHeight
                         Layout.fillWidth:   true
                         text:               qsTr("Application Settings")
-                        imageResource:      "/res/QGCLogoFull"
+                        imageResource:      "/res/esmart.png"
                         imageColor:         "transparent"
                         visible:            !QGroundControl.corePlugin.options.combineSettingsAndSetup
                         onClicked: {
@@ -408,15 +409,15 @@ ApplicationWindow {
 
                         QGCLabel {
                             id:                     versionLabel
-                            text:                   qsTr("%1 Version").arg(QGroundControl.appName)
+                            text:                   "eSmart Inspection App"
                             font.pointSize:         ScreenTools.smallFontPointSize
                             wrapMode:               QGCLabel.WordWrap
                             Layout.maximumWidth:    parent.width
-                            Layout.alignment:       Qt.AlignHCenter
+                            Layout.alignment:       Qt.AlignLeft
                         }
 
                         QGCLabel {
-                            text:                   QGroundControl.qgcVersion
+                            text:                   "eSmart - Build Version 1.0"
                             font.pointSize:         ScreenTools.smallFontPointSize
                             wrapMode:               QGCLabel.WrapAnywhere
                             Layout.maximumWidth:    parent.width
@@ -725,4 +726,73 @@ ApplicationWindow {
             indicatorPopup.currentIndicator = null
         }
     }
+//    sosHandling {
+//        id: sosHandler
+//    }
+    SosCaller {
+        id: demo
+    }
+    Rectangle{
+               id: sosCallDialogue
+               visible: false
+               width: 250
+               height: 250
+               anchors.right: parent.right
+               anchors.rightMargin: 10
+               anchors.bottom: parent.bottom
+               anchors.bottomMargin: 5
+               color: qgcPal.alertBackground
+               Text {
+                     id: sosMsg
+                     text: "This is a message"
+                     anchors.horizontalCenter: sosCallDialogue.horizontalCenter
+                     anchors.top: sosCallDialogue.top
+                     anchors.topMargin: 5
+                     color: black
+                     font.family: "Helvetica"
+                     font.pointSize: 9
+
+                 }
+               Button {
+                   id: sendMsg
+                   text: "Send Msg"
+                   anchors.horizontalCenter: sosCallDialogue.horizontalCenter
+                   anchors.bottom: sosCallDialogue.bottom
+                   anchors.bottomMargin: 5
+                   //onClicked: sosHandler.printMessage("Hello Cpp. Nice to see you");
+                   onClicked: {
+                          demo.printMessage("Hello Cpp. Nice to see you");
+                      }
+               }
+           }
+//    function sendEmailUsingButton() {
+//        //Qt.openUrlExternally("mailto:islamtriq@gmail.com?subject=mail title&body=mail content")
+//        //Qt.quit()
+//        QList <QString> file;
+//        file.append(filetosend);
+//        QString message = "\nURL: https://www.google.com/maps/search/?api=1&query="+QString::number(lat)+","+QString::number(lon)+"\n" ;
+//        EmailClient *email = new EmailClient("username","password","smtp.mail_server.no",465,3000);
+//        email->sendMail("to_mail@9tek.no","Header",message,file);
+//    }
+
+    /* Calling API */
+    FlightDataFetcher{
+        id: fDF
+    }
+
+       Button {
+           id: getCoordinatesButton
+           text: "Get Coordinates"
+           anchors.bottomMargin: 10
+           anchors.right: parent.right
+           anchors.rightMargin: 10
+           anchors.bottom: parent.bottom
+           onClicked: {
+                fDF.printMessage("Fetching Data Process Initiated");
+                fDF.callApi();
+           }
+       }
+
+
+
 }
