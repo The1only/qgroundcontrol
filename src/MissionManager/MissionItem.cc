@@ -172,7 +172,12 @@ bool MissionItem::load(QTextStream &loadStream)
 {
     eSmartMission = false;
 
-    const QStringList &wpParams = loadStream.readLine().split("\t");
+//    const QStringList &wpParamsTmp = loadStream.readLine().split("\t");
+    QStringList wpParams = loadStream.readLine().split("\t");
+    if(wpParams.size() < 4){
+        wpParams = loadStream.readLine().split(",");
+    }
+
     if (wpParams.size() == 12) {
         setCommand((MAV_CMD)wpParams[3].toInt());   // Has to be first since it triggers defaults to be set, which are then override by below set calls
         setSequenceNumber(wpParams[0].toInt());
@@ -204,6 +209,30 @@ bool MissionItem::load(QTextStream &loadStream)
         setAutoContinue(true);// Auto Continue...
         eSmartMission = true;
         return true;
+    }
+    // If Power companies mission... X,Y,ID,KVALITET,EIER,HØYESTE_S0
+    if (wpParams.size() == 6) {
+        static int linenumber = 0;
+
+        if(wpParams[0].toStdString() != "X"){
+            setCommand((MAV_CMD)16);   // Has to be first since it triggers defaults to be set, which are then override by below set calls
+            setSequenceNumber(linenumber);
+            setIsCurrentItem(false);
+            setFrame((MAV_FRAME) QGroundControlQmlGlobal::AltitudeModeTerrainFrame ); // Frame...
+            setParam1(0); // Param 1
+            setParam2(0); // Param 2
+            setParam3(0); // Param 3
+            setParam4(0); // Param 4
+            setParam5(wpParams[1].toDouble()); // Lon
+            setParam6(wpParams[0].toDouble()); // Lat
+            setParam7(10); // Alt over ground (AGL)
+            setAutoContinue(true);// Auto Continue...
+            eSmartMission = true;
+            return true;
+        }
+        else{
+            linenumber = 0;
+        }
     }
 
     return false;
