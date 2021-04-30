@@ -62,14 +62,17 @@ LinuxBuild {
         QMAKE_POST_LINK += $$escape_expand(\\n) xcopy \"$$GST_ROOT_WIN\\lib\\gstreamer-1.0\\*.dll\" \"$$DESTDIR_WIN\\gstreamer-plugins\\\" /Y $$escape_expand(\\n)
     }
 } else:AndroidBuild {
+    message("ARCH: "$$QT_ARCH)
     #- gstreamer assumed to be installed in $$PWD/../../gstreamer-1.0-android-universal-1.18.1/***
-    contains(QT_ARCH, arm) {
-        GST_ROOT = $$PWD/../../gstreamer-1.0-android-universal-1.18.1/armv7
+    contains(QT_ARCH, armeabi-v7a) {  #/Users/terjenilsen/Dropbox/Esmart_QGC/gstreamer-1.0-android-universal-1.18.4
+        GST_ROOT = $$PWD/../../../gstreamer-1.0-android-universal-1.18.4/armv7
     } else:contains(QT_ARCH, arm64) {
-        GST_ROOT = $$PWD/../../gstreamer-1.0-android-universal-1.18.1/arm64
+        GST_ROOT = $$PWD/../../../gstreamer-1.0-android-universal-1.18.4/arm64
     } else {
-        GST_ROOT = $$PWD/../../gstreamer-1.0-android-universal-1.18.1/x86
+        GST_ROOT = $$PWD/../../../gstreamer-1.0-android-universal-1.18.4/x86
     }
+
+    message("Video streaming: "$$GST_ROOT)
     exists($$GST_ROOT) {
         QMAKE_CXXFLAGS  += -pthread
         CONFIG          += VideoEnabled

@@ -1,4 +1,24 @@
+
+/*
+  Copyright (c) 2011 - Tőkés Attila
+
+  This file is based upon part of SmtpClient for Qt.
+
+  SmtpClient for Qt is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  SmtpClient for Qt is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY.
+
+  See the LICENSE file for more details.
+*/
+
 #include "emailclient.h"
+#include <QTextStream>
+#include <QtCore>
+#include "SmtpMime"
 
 int main_test(void);
 
@@ -24,6 +44,73 @@ void EmailClient::initialize(const QString &user, const QString &pass, const QSt
     this->port = port;
     this->timeout = timeout;
 }
+
+
+void EmailClient::sendMail2(const QString &touser, const QString &subject, const QString &body, QStringList files)
+{
+
+    // First create the SmtpClient object and set the user and the password.
+
+    SmtpClient smtp("smtp.domeneshop.com", 465, SmtpClient::SslConnection);
+ //   SmtpClient smtp("smtp.domeneshop.com", 587, SmtpClient::TlsConnection);
+
+    smtp.setUser(this->user);
+    smtp.setPassword(this->pass);
+
+    // Create a MimeMessage
+
+    MimeMessage message;
+
+    EmailAddress sender("drone1@9tek.no", "Error message");
+    message.setSender(&sender);
+
+    EmailAddress to(touser, "Recipient's Name");
+    message.addRecipient(&to);
+
+    message.setSubject("SmtpClient for Qt - Demo");
+
+    // Add some text
+    MimeText text;
+    text.setText("Hi!\n This is an email with some attachments.");
+    message.addPart(&text);
+
+    // Now we create the attachment object
+    MimeAttachment attachment (new QFile("/Users/teni/Dropbox/Esmart_QGC/IMG_0750.jpg"));
+
+    // the file type can be setted. (by default is application/octet-stream)
+    attachment.setContentType("image/jpg");
+
+    // Now add it to message
+    message.addPart(&attachment);
+
+    // Add an another attachment
+ //   MimeAttachment document(new QFile("/Users/teni/Dropbox/Esmart_QGC/IMG_0750.jpg"));
+ //   message.addPart(&document);
+
+    // Now we can send the mail
+
+    if (!smtp.connectToHost()) {
+        qDebug() << "Failed to connect to host!" ;
+        smtp.quit();
+        return;
+    }
+
+    if (!smtp.login()) {
+        qDebug() << "Failed to login!";
+        smtp.quit();
+        return;
+    }
+
+    if (!smtp.sendMail(message)) {
+        qDebug() << "Failed to send mail!";
+        smtp.quit();
+        return;
+    }
+
+    smtp.quit();
+
+}
+
 
 void EmailClient::sendMail(const QString &to, const QString &subject, const QString &body, QStringList files)
 {
@@ -83,9 +170,7 @@ void EmailClient::sendMail(const QString &to, const QString &subject, const QStr
          sendResult = SendResult::Timeout;
      }
 
-    //t = new QTextStream(socket);
     t.setDevice(&socket);
-
     t.setCodec(codecx);
 }
 
@@ -121,25 +206,28 @@ void EmailClient::readyRead()
     }
     while (socket.canReadLine() && responseLine[3] != ' ');
 
-    responseLine.truncate(3);
-
     //qDebug() << "Server response code: " <<  responseLine;
     qDebug() << "Server response: " << response;
 
+    responseLine.truncate(3);
+
     if (state == Init && responseLine == "220") {
         t << "EHLO localhost" <<"\r\n";
+        qDebug() << "send: " << "EHLO localhost";
         t.flush();
         state = HandShake;
     }
     //No need, because I'm using socket.startClienEncryption() which makes the SSL handshake for you
-    /*else if (state == Tls && responseLine == "250")
+    else if (state == Tls && responseLine == "250")
     {
         // Trying AUTH
         qDebug() << "STarting Tls";
-        t << "STARTTLS" << "\r\n";
+//        t << "STARTTLS" << "\r\n";
+        t << "STARTSSL" << "\r\n";
+        qDebug() << "send: " << "STARTTLS";
         t.flush();
         state = HandShake;
-    }*/
+    }
     else if (state == HandShake && responseLine == "250") {
         socket.startClientEncryption();
         if(!socket.waitForEncrypted(timeout)) {
@@ -147,6 +235,7 @@ void EmailClient::readyRead()
             state = Close;
         }
         t << "EHLO localhost" << "\r\n";
+        qDebug() << "send: " << "EHLO localhost";
         t.flush();
         state = Auth;
     }
@@ -156,42 +245,50 @@ void EmailClient::readyRead()
     else if (state == Auth && responseLine == "250") {
         // Trying AUTH
         t << "AUTH LOGIN" << "\r\n";
+        qDebug() << "send: " << "AUTH LOGIN" ;
         t.flush();
         state = User;
     }
     else if (state == User && responseLine == "334") {
         t << user << "\r\n";
+        qDebug() << "send: " <<  user ;
         t.flush();
         state = Pass;
     }
     else if (state == Pass && responseLine == "334") {
         t << pass << "\r\n";
+        qDebug() << "send: " <<  pass;
         t.flush();
 
         state = Mail;
     }
     else if (state == Mail && responseLine == "235") {
         t << "MAIL FROM:<" << user << ">\r\n";
+        qDebug() << "send: " << "MAIL FROM:<" << user;
         t.flush();
         state = Rcpt;
     }
     else if (state == Rcpt && responseLine == "250") {
         t << "RCPT TO:<" << rcpt << ">\r\n"; //r
+        qDebug() << "send: " << "RCPT TO:<" << rcpt;
         t.flush();
         state = Data;
     }
     else if (state == Data && responseLine == "250") {
         t << "DATA\r\n";
+        qDebug() << "send: " << "DATA";
         t.flush();
         state = Body;
     }
     else if (state == Body && responseLine == "354") {
         t << message << "\r\n.\r\n";
+        qDebug() << "send: " <<  message;
         t.flush();
         state = Quit;
     }
     else if (state == Quit && responseLine == "250") {
         t << "QUIT\r\n";
+        qDebug() << "send: " << "QUIT";
         t.flush();
         state = Close;
         lastResponse = "Message sent!";
