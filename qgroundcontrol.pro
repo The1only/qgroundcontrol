@@ -42,8 +42,8 @@ MacBuild {
     LIBS            += -framework ApplicationServices
     INCLUDEPATH     += /usr/local/include
 
-    INCLUDEPATH     += /Users/terjenilsen/Dropbox/Esmart_QGC/SmtpClient-for-Qt/src
-    LIBS            += -L/Users/terjenilsen/Dropbox/Esmart_QGC/build-SMTPEmail-Desktop_Qt_5_15_3_clang_64bit-Debug -lSMTPEmail
+  #  INCLUDEPATH     += /Users/terjenilsen/Dropbox/Esmart_QGC/SmtpClient-for-Qt/src
+ #   LIBS            += -L/Users/terjenilsen/Dropbox/Esmart_QGC/build-SMTPEmail-Desktop_Qt_5_15_3_clang_64bit-Debug -lSMTPEmail
 
     LIBS            += /usr/local/lib/libgdal.dylib
     LIBS            += /usr/local/opt/curl/lib/libcurl.dylib
