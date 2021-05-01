@@ -41,6 +41,10 @@ MacBuild {
     OTHER_FILES     += Custom-Info.plist
     LIBS            += -framework ApplicationServices
     INCLUDEPATH     += /usr/local/include
+
+    INCLUDEPATH     += /Users/terjenilsen/Dropbox/Esmart_QGC/SmtpClient-for-Qt/src
+    LIBS            += -L/Users/terjenilsen/Dropbox/Esmart_QGC/build-SMTPEmail-Desktop_Qt_5_15_3_clang_64bit-Debug -lSMTPEmail
+
     LIBS            += /usr/local/lib/libgdal.dylib
     LIBS            += /usr/local/opt/curl/lib/libcurl.dylib
 
@@ -65,8 +69,14 @@ WindowsBuild {
 
 #ERROR MUST BE FIXED...
 AndroidBuild {
+    INCLUDEPATH     += /usr/local/include # /Users/terjenilsen/Dropbox/Esmart_QGC/GDAL4Android/submodules/build/armeabi-v7a/include
+    INCLUDEPATH     += /Users/terjenilsen/Dropbox/Esmart_QGC/SmtpClient-for-Qt/src
+#    LIBS            += -L/Users/terjenilsen/Dropbox/Esmart_QGC/build-SMTPEmail-Android_Qt_5_15_3_Clang_Multi_Abi-Debug -lSMTPEmail_armeabi-v7a
+    LIBS            += -L/Users/terjenilsen/Dropbox/Esmart_QGC/GDAL4Android/gdal/src/main/jniLibs/armeabi-v7a -lgdal
+#LIBS            += -L/Users/terjenilsen/Dropbox/Esmart_QGC/GDAL4Android/submodules/build/armeabi-v7a/lib -lgdal
+#    LIBS            += C:\OSGeo4W64\lib\gdal_i.lib
+#    PROJ_LIB        += C:\OSGeo4W64\share\proj
 }
-
 
 #
 # Branding
@@ -449,9 +459,8 @@ HEADERS += \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
     src/decodetiff.h \
-    src/emailclient.h \
-    src/flightdatafetcher.h \
-    src/sosCaller.h
+    
+#    src/emailclient.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -465,9 +474,8 @@ SOURCES += \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
     src/decodetiff.cc \
-    src/emailclient.cpp \
-    src/flightdatafetcher.cpp \
-    src/sosCaller.cpp
+
+#   src/emailclient.cpp
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \

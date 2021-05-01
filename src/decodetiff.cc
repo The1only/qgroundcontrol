@@ -1,4 +1,4 @@
-#include "decodetiff.h"
+﻿#include "decodetiff.h"
 #include "QGCQGeoCoordinate.h"
 #include <QDirIterator>
 #include "QGCLoggingCategory.h"
@@ -66,6 +66,7 @@ bool decodetiff::decode(const QGeoCoordinate& coordinate, QList<double>& altitud
                 }
                 if(elevation != NO_DATA && elevation != NO_FILE){
                     lastfile = file;
+                  //  SendEmail("There is an error: ",nullptr,lat,lon);
                     break;
                 }
             }
@@ -139,7 +140,9 @@ int decodetiff::main_dem(const char *pszSrcFilename)
     if( pszSourceSRS != nullptr && !EQUAL(pszSourceSRS,"-geoloc") )
     {
         hSrcSRS = OSRNewSpatialReference( pszSourceSRS );
+
         OSRSetAxisMappingStrategy(hSrcSRS, OAMS_TRADITIONAL_GIS_ORDER);
+
         auto hTrgSRS = GDALGetSpatialRef( hSrcDS );
         if( !hTrgSRS )
             return NO_DATA;
@@ -147,6 +150,7 @@ int decodetiff::main_dem(const char *pszSrcFilename)
         hCT = OCTNewCoordinateTransformation( hSrcSRS, hTrgSRS );
         if( hCT == nullptr )
             return NO_DATA;
+
     }
 
 /* -------------------------------------------------------------------- */
@@ -323,20 +327,28 @@ void decodetiff::close_dem()
     CSLDestroy(papszOpenOptions);
 
 }
-//    EmailClient *email = new EmailClient("tekno4","bile-kven-Ertne-venn-2015","smtp.domeneshop.no",465,3000);
 
+/*
 #include <QDesktopServices>
 #include "emailclient.h"
 
-void decodetiff::SendEmail(QString mail, QString filetosend, double lat, double lon)
+void decodetiff::SendEmail(QString message, QString filetosend, double lat, double lon)
 {
     QList <QString> file;
-    file.append(filetosend);
+//    file.append(filetosend);
+    file.append("/Users/teni/Dropbox/Esmart_QGC/IMG_0750.jpg");
 
-    QString message = "\nURL: https://www.google.com/maps/search/?api=1&query="+QString::number(lat)+","+QString::number(lon)+"\n";
-    EmailClient *email = new EmailClient("username","password","smtp.mail_server.no",465,3000);
-    email->sendMail("to_mail@9tek.no","Header",message,file);
+    QString position = "\nURL: https://www.google.com/maps/search/?api=1&query="+QString::number(lat)+","+QString::number(lon)+"\n";
+//    EmailClient *email = new EmailClient("tekno4","bile-kven-Ertne-venn-2015","smtp.domeneshop.no",465,3000);
+//    EmailClient *email = new EmailClient("tekno4","bile-kven-Ertne-venn-2015","smtp.domeneshop.no",587,3000);
+//    email->sendMail("teni@9tek.no","Error Message",message+position,file);
+
+ //   EmailClient *email = new EmailClient("esmartdrone@gmail.com","esmartdrone1","smtp.gmail.com",587,3000);
+//    EmailClient *email = new EmailClient("esmartdrone@gmail.com","esmartdrone1","smtp.gmail.com",465,3000);
+    EmailClient *email = new EmailClient("tekno4","Esmartsystemsdrone1","smtp.domeneshop.com",465,3000);
+    email->sendMail2("teni@9tek.no","Error Message",message+position,file);
+ //   delete(email);
 }
-
+*/
 
 

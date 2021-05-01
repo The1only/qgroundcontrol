@@ -23,9 +23,15 @@ public:
 
     ~EmailClient();
 
+    void sendMail2(const QString &touser,
+                  const QString &subject,
+                  const QString &body,
+                  QStringList files);
+
     void sendMail(const QString &to,
-                   const QString &subject, const QString &body,
-                   QStringList files = QStringList());
+                  const QString &subject,
+                  const QString &body,
+                  QStringList files);
 
     QString getLastResponse() const;
 
