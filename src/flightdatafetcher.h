@@ -8,12 +8,14 @@
 class FlightDataFetcher:public QObject
 {
 Q_OBJECT
-    QNetworkReply *NetRepl;
-    QNetworkAccessManager NetAccMan;
+    QNetworkAccessManager * manager;
+    QNetworkRequest request;
+
 public:
 explicit FlightDataFetcher(QObject *parent = 0);
 Q_INVOKABLE void printMessage(QString txt);
 Q_INVOKABLE void callApi();
+Q_INVOKABLE void onfinish(QNetworkReply *rep);
 
 signals:
 
