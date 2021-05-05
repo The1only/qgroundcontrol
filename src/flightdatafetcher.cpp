@@ -25,11 +25,8 @@ void FlightDataFetcher::callApi() {
 void FlightDataFetcher::onfinish(QNetworkReply *rep)
 {
     QByteArray bts = rep->readAll();
-    QJsonDocument doc(bts);
-    QString jsonString = doc.toJson(QJsonDocument::Indented);
-
-
-    qDebug() << jsonString;
+    QString str(bts);
+    qDebug() << bts;
     qDebug() << "API Done" ;
 
 }
