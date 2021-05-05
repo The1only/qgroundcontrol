@@ -9,7 +9,7 @@ class FlightDataFetcher:public QObject
 {
 Q_OBJECT
     QNetworkAccessManager * manager;
-    QNetworkRequest request;
+   // QNetworkRequest request;
 
 public:
 explicit FlightDataFetcher(QObject *parent = 0);
