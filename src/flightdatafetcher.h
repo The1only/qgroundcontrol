@@ -4,23 +4,24 @@
 #include <QtCore>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include "mission.h"
 
 class FlightDataFetcher:public QObject
 {
-Q_OBJECT
+
+    Q_OBJECT
     QNetworkAccessManager * manager;
-   // QNetworkRequest request;
+    inline static QList<Mission*> missions = QList<Mission*>();
 
 public:
-explicit FlightDataFetcher(QObject *parent = 0);
-Q_INVOKABLE void printMessage(QString txt);
-Q_INVOKABLE void callApi();
-Q_INVOKABLE void onfinish(QNetworkReply *rep);
-
+    explicit FlightDataFetcher(QObject *parent = 0);
+    Q_INVOKABLE void printMessage(QString txt);
+    Q_INVOKABLE void callAPI();
+    Q_INVOKABLE void onFinish(QNetworkReply *rep);
+    Q_INVOKABLE QStringList getMissions();
+    Q_INVOKABLE void getCoordinates(QString missionTitle);
 signals:
-
 public slots:
-
 };
 
 #endif // FLIGHTDATAFETCHER_H

@@ -459,7 +459,8 @@ HEADERS += \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
     src/decodetiff.h \
-    
+     \
+    src/mission.h
 #    src/emailclient.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
@@ -474,6 +475,7 @@ SOURCES += \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
     src/decodetiff.cc \
+    src/mission.cpp
 
 #   src/emailclient.cpp
 
