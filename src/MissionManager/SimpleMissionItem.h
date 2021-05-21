@@ -92,6 +92,7 @@ public:
 
     virtual bool load(QTextStream &loadStream);
     virtual bool load(const QJsonObject& json, int sequenceNumber, QString& errorString);
+    virtual bool load(const QJsonValue & assetCoordinates);
 
     MissionItem& missionItem(void) { return _missionItem; }
     const MissionItem& missionItem(void) const { return _missionItem; }

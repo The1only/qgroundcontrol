@@ -955,6 +955,7 @@ bool MissionController::_loadTextMissionFile(QTextStream& stream, QmlObjectListM
         MissionSettingsItem* settingsItem = _addMissionSettings(visualItems);
 
         while (!stream.atEnd()) {
+            //qDebug() <<stream.readLine().split("\t");
             SimpleMissionItem* item = new SimpleMissionItem(_masterController, _flyView, true /* forLoad */, visualItems);
             if (item->load(stream)) {
                 if (firstItem && plannedHomePositionInFile) {
@@ -2657,4 +2658,63 @@ void MissionController::setGlobalAltitudeMode(QGroundControlQmlGlobal::AltitudeM
         _globalAltMode = altMode;
         emit globalAltitudeModeChanged();
     }
+}
+bool MissionController::loadMissionFromAzure(QJsonArray assetCoordinates){
+   qDebug() <<"inLoad from azure";
+   QString     errorStr;
+   QString     errorMessage = tr("Mission: %1");
+
+
+   setGlobalAltitudeMode(QGroundControlQmlGlobal::AltitudeModeNone);   // Mixed mode
+
+   QmlObjectListModel* loadedVisualItems = new QmlObjectListModel(this);
+   if (!createMissionFromCoordinates(assetCoordinates,loadedVisualItems, errorStr)) {
+        qDebug() <<"Error Occured line 2671 Mission Controller.cc";
+       // errorString = errorMessage.arg(errorStr);
+        return false;
+   }
+
+   _initLoadedVisualItems(loadedVisualItems);
+    return true;
+};
+bool MissionController::createMissionFromCoordinates( QJsonArray assetCoordinates, QmlObjectListModel* visualItems,QString& errorString ){
+    bool firstItem = true;
+    bool plannedHomePositionInFile = false;
+    bool versionOk = true;
+
+    if (versionOk) {
+        MissionSettingsItem* settingsItem = _addMissionSettings(visualItems);
+        foreach (const QJsonValue & c, assetCoordinates) {
+            SimpleMissionItem* item = new SimpleMissionItem(_masterController, _flyView, true /* forLoad */, visualItems);
+            if (item->load(c)) {
+                if (firstItem && plannedHomePositionInFile) {
+                    settingsItem->setInitialHomePositionFromUser(item->coordinate());
+                }else {
+                    if (TakeoffMissionItem::isTakeoffCommand(static_cast<MAV_CMD>(item->command()))) {
+                        // This needs to be a TakeoffMissionItem
+                        TakeoffMissionItem* takeoffItem = new TakeoffMissionItem(_masterController, _flyView, settingsItem, true /* forLoad */, visualItems);
+                        takeoffItem->load(c);
+                        item->deleteLater();
+                        item = takeoffItem;
+                    }
+                    visualItems->append(item);
+                }
+                firstItem = false;
+            }
+        }
+
+    }
+
+    if (!plannedHomePositionInFile) {
+        // Update sequence numbers in DO_JUMP commands to take into account added home position in index 0
+        for (int i=1; i<visualItems->count(); i++) {
+            SimpleMissionItem* item = qobject_cast<SimpleMissionItem*>(visualItems->get(i));
+            if (item && item->command() == MAV_CMD_DO_JUMP) {
+                item->missionItem().setParam1(static_cast<int>(item->missionItem().param1()) + 1);
+            }
+        }
+    }
+
+    return true;
+
 }

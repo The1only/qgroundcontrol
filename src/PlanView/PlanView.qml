@@ -1291,7 +1291,9 @@ Item {
                                     onActivated: {
                                         popupContent.missionSelected = textAt(index)
                                         console.log(textAt(index))
-                                        fDF.getCoordinates(textAt(index))
+                                        _planMasterController.loadMissionFromAzure(fDF.getCoordinates(textAt(index)));
+                                        popup.close();
+                                        dropPanel.hide()
                                     }
                                     Component.onCompleted: {
                                         var index = missionCombo.find(popupContent.missionSelected )

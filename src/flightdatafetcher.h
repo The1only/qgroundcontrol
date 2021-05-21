@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include "mission.h"
+#include "oauthwrapper.h"
 
 class FlightDataFetcher:public QObject
 {
@@ -19,7 +20,8 @@ public:
     Q_INVOKABLE void callAPI();
     Q_INVOKABLE void onFinish(QNetworkReply *rep);
     Q_INVOKABLE QStringList getMissions();
-    Q_INVOKABLE void getCoordinates(QString missionTitle);
+    Q_INVOKABLE QJsonArray getCoordinates(QString missionTitle);
+
 signals:
 public slots:
 };

@@ -308,7 +308,28 @@ bool SimpleMissionItem::load(QTextStream &loadStream)
 
     return success;
 }
+bool SimpleMissionItem::load(const QJsonValue & assetCoordinates)
+{
+    bool success;
 
+    if ((success = _missionItem.load(assetCoordinates))) {
+        if (specifiesAltitude()) {
+            if(_missionItem.eSmartMission == true){
+                _altitudeMode = QGroundControlQmlGlobal::AltitudeModeAboveTerrain;
+            }else{
+                _altitudeMode =_missionItem.relativeAltitude() ? QGroundControlQmlGlobal::AltitudeModeRelative : QGroundControlQmlGlobal::AltitudeModeAbsolute;
+            }
+            _altitudeFact.setRawValue(_missionItem._param7Fact.rawValue());
+            _amslAltAboveTerrainFact.setRawValue(qQNaN());
+        }
+        _connectSignals();
+        _updateOptionalSections();
+        _rebuildFacts();
+        setDirty(false);
+    }
+
+    return success;
+}
 bool SimpleMissionItem::load(const QJsonObject& json, int sequenceNumber, QString& errorString)
 {
     if (!_missionItem.load(json, sequenceNumber, errorString)) {

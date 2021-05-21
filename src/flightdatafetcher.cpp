@@ -20,12 +20,18 @@ void FlightDataFetcher::callAPI() {
     connect(mgr,SIGNAL(finished(QNetworkReply*)),mgr,SLOT(deleteLater()));
     QUrl url ="https://dronefacade-new.stamp-we-dev-01.service.esmartapi.com/api/v2/missions?participantId=c74e2cc2-079f-45cf-9c0b-d43b710eeb84&source=m-gs-dji&withinDueDate=true";
     QNetworkRequest request(url);
-    QString token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1UmlQbkVrNUNPWlNkWGdaSkhxRVZYblN0XzhVMkZxYmdjaWVNNENxU1EifQ.eyJpc3MiOiJodHRwczovL2VzbWFydGdsb2JhbGIyYy5iMmNsb2dpbi5jb20vZWVlYzczZGUtYTU5Ni00MTBiLWEwMTMtNDYyZWIzZjAxY2M5L3YyLjAvIiwiZXhwIjoxNjIwODIyMDk5LCJuYmYiOjE2MjA4MTg0OTksImF1ZCI6ImZkYjZlMzgwLTg0ZGQtNDQ3Yy05NmYzLTAxZThjNGQxOWJmMyIsInN1YiI6IjMwN2RhNzQ2LThjNGUtNDBmMi1hN2JiLTllZjcwYjgwMjI5ZiIsImVtYWlsIjoiYWhtYWQuYi5hc2xhbUBoaW9mLm5vIiwibmFtZSI6IkFobWFkIEJpbGFsIEFzbGFtIiwiZ2l2ZW5fbmFtZSI6IkFobWFkIEJpbGFsIiwiZmFtaWx5X25hbWUiOiJBc2xhbSIsIm5vbmNlIjoiMjAzNzE2NDMxMzcxMCIsInNjcCI6InVzZXJfaW1wZXJzb25hdGlvbiIsImF6cCI6ImZkYjZlMzgwLTg0ZGQtNDQ3Yy05NmYzLTAxZThjNGQxOWJmMyIsInZlciI6IjEuMCIsImlhdCI6MTYyMDgxODQ5OX0.ghfVWG2STXlop7OIBSoD7kXeuiIrKB6EtQE8qqvRIEmM-IODDQI3KDu4P30bxXqPN-EUx5oOH1_Qg6j6ZaEQkI0gbaNHkizajXF9zHeLbf_QrEdx1Jqml0An-R2pd74RDF5236IdlQv1Gt0t-rfjLqmoLPacTmKxJOcASVVohv2LhlUpm9f7R0VHTBBrWQRkbULBtHsAFS43udYOdu5Q9Ri7sjNbic5fdZZEQ3lB0QOhrIl8ii9XXuWNQ6O7CgAnkuGk2VVYvkgmxy5Q12hR-iq0WD6jfd4eYXaDpF_M2hGHyS9tTrwaT2RLgo2w8R1j4670yDYJUt-1B1cqfsC35w";
+    QString token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImF1UmlQbkVrNUNPWlNkWGdaSkhxRVZYblN0XzhVMkZxYmdjaWVNNENxU1EifQ.eyJpc3MiOiJodHRwczovL2VzbWFydGdsb2JhbGIyYy5iMmNsb2dpbi5jb20vZWVlYzczZGUtYTU5Ni00MTBiLWEwMTMtNDYyZWIzZjAxY2M5L3YyLjAvIiwiZXhwIjoxNjIxNjMxNTY5LCJuYmYiOjE2MjE2Mjc5NjksImF1ZCI6ImZkYjZlMzgwLTg0ZGQtNDQ3Yy05NmYzLTAxZThjNGQxOWJmMyIsInN1YiI6IjMwN2RhNzQ2LThjNGUtNDBmMi1hN2JiLTllZjcwYjgwMjI5ZiIsImVtYWlsIjoiYWhtYWQuYi5hc2xhbUBoaW9mLm5vIiwibmFtZSI6IkFobWFkIEJpbGFsIEFzbGFtIiwiZ2l2ZW5fbmFtZSI6IkFobWFkIEJpbGFsIiwiZmFtaWx5X25hbWUiOiJBc2xhbSIsIm5vbmNlIjoiNjY1ODkxMDM4OTc3OCIsInNjcCI6InVzZXJfaW1wZXJzb25hdGlvbiIsImF6cCI6ImZkYjZlMzgwLTg0ZGQtNDQ3Yy05NmYzLTAxZThjNGQxOWJmMyIsInZlciI6IjEuMCIsImlhdCI6MTYyMTYyNzk2OX0.HdsEVcsegGHYqMEUIFLZxIRR_Xk3mr3o5Yq7ZpTN0pLQEW4oCeA1v2qpKvnyXdl_nAGC6R3rul64CBo8WwfjVGSyF4Cw741ZTxjptYOcJWYkCslRKOYCtp7JGtyp1ExGKfhU3FlOoCMGV8B9reRufOw3KymbL_wbqsB5Y7FB93GkKqbZcUuLulprbFJAcmtsAC5YwzYPVm643ObHlVCiU4lapzeFCSYCbCtBGmM_UyUb8vmBe6MabHLd41duMJOulTHtS48RKQgZsi88tcnATVyGLzsITB4IPFSBJ1ATpFYHJL3Q-Y1tvU5qv-lxj6hWne10hB-ecQOFFBqgEWqwxw";
     auto header = QString("Bearer %1").arg(token);
     request.setRawHeader("X-SortOrder", "Desc");
     request.setRawHeader("x-tenantkey", "esmart-dev");
     request.setRawHeader(QByteArray("Authorization"), header.toUtf8());
     mgr->get(request);
+
+// Testing
+
+//OAuthWrapper* temp = new OAuthWrapper();
+//temp->click();
+
 
 
 }
@@ -64,21 +70,20 @@ QStringList FlightDataFetcher::getMissions()
     }
     return missionsTitle;
 }
-// Assuming Mission Title is Unique
-void FlightDataFetcher::getCoordinates(QString mTitle)
+
+// Function Return the Coordinates of the Specified Mission
+QJsonArray FlightDataFetcher::getCoordinates(QString mTitle)
 {
+    QJsonArray assetCoordinates;
     QListIterator<Mission*> i(missions);
     while (i.hasNext()){
         Mission* mission = i.next();
         QString missionTitle = mission->getTitle();
+        // Assuming Mission Title is Unique
         if ( missionTitle == mTitle) {
-            QJsonArray assetCoordinates = mission->getAssetCoordinates();
-            foreach (const QJsonValue & c, assetCoordinates) {
-                qDebug() <<"assetId: "<< c["assetId"].toString();
-                qDebug() <<"long ->  "<< c["longitude"].toDouble();
-                qDebug() <<"lat  ->  " <<c["latitude"].toDouble();
+            assetCoordinates = mission->getAssetCoordinates();
             }
         }
-    }
-
+    return assetCoordinates;
 }
+

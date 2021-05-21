@@ -7,6 +7,9 @@
 #
 ################################################################################
 
+QT += network
+QT += networkauth
+QT += network networkauth
 QMAKE_PROJECT_DEPTH = 0 # undocumented qmake flag to force absolute paths in makefiles
 
 # These are disabled until proven correct
@@ -460,7 +463,8 @@ HEADERS += \
     src/GPS/Drivers/src/base_station.h \
     src/decodetiff.h \
      \
-    src/mission.h
+    src/mission.h \
+    src/oauthwrapper.h
 #    src/emailclient.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
@@ -475,7 +479,8 @@ SOURCES += \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
     src/decodetiff.cc \
-    src/mission.cpp
+    src/mission.cpp \
+    src/oauthwrapper.cpp
 
 #   src/emailclient.cpp
 
