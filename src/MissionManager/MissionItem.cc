@@ -183,7 +183,7 @@ bool MissionItem::load(const QJsonValue& jsonMissionCoordinates)
     setParam4(0); // Param 4
     setParam5(jsonMissionCoordinates["latitude"].toDouble()); // Lat
     setParam6(jsonMissionCoordinates["longitude"].toDouble()); // Lon
-    setParam7(jsonMissionCoordinates["altitude"].toDouble()); // Alt over ground (AGL)
+    setParam7(50); // Alt over ground (AGL) //jsonMissionCoordinates["altitude"].toDouble()
     setAutoContinue(true);// Auto Continue...
     eSmartMission = true;
     return true;
