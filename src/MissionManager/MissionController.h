@@ -257,6 +257,8 @@ public:
     QGroundControlQmlGlobal::AltitudeMode globalAltitudeMode(void);
     QGroundControlQmlGlobal::AltitudeMode globalAltitudeModeDefault(void);
     void setGlobalAltitudeMode(QGroundControlQmlGlobal::AltitudeMode altMode);
+    bool loadMissionFromAzure(QJsonArray assetCoordinates);
+    bool createMissionFromCoordinates( QJsonArray assetCoordinates, QmlObjectListModel* visualItems,QString& errorString );
 
 signals:
     void visualItemsChanged                 (void);

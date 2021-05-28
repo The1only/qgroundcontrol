@@ -8,12 +8,12 @@
  ****************************************************************************/
 
 import QtQuick          2.3
-import QtQuick.Controls 1.2
 import QtQuick.Dialogs  1.2
 import QtLocation       5.3
 import QtPositioning    5.3
 import QtQuick.Layouts  1.2
 import QtQuick.Window   2.2
+import QtQuick.Controls 2.12
 
 import QGroundControl                   1.0
 import QGroundControl.FlightMap         1.0
@@ -26,6 +26,7 @@ import QGroundControl.Controllers       1.0
 import QGroundControl.ShapeFileHelper   1.0
 import QGroundControl.Airspace          1.0
 import QGroundControl.Airmap            1.0
+import FlightDataFetcher 1.0
 
 Item {
     id: _root
@@ -185,9 +186,9 @@ Item {
         id: firmwareOrVehicleMismatchUploadDialogComponent
         QGCViewMessage {
             message: qsTr("This Plan was created for a different firmware or vehicle type than the firmware/vehicle type of vehicle you are uploading to. " +
-                            "This can lead to errors or incorrect behavior. " +
-                            "It is recommended to recreate the Plan for the correct firmware/vehicle type.\n\n" +
-                            "Click 'Ok' to upload the Plan anyway.")
+                          "This can lead to errors or incorrect behavior. " +
+                          "It is recommended to recreate the Plan for the correct firmware/vehicle type.\n\n" +
+                          "Click 'Ok' to upload the Plan anyway.")
 
             function accept() {
                 _planMasterController.sendToVehicle()
@@ -253,15 +254,15 @@ Item {
                 return
             }
             switch (_missionController.sendToVehiclePreCheck()) {
-                case MissionController.SendToVehiclePreCheckStateOk:
-                    sendToVehicle()
-                    break
-                case MissionController.SendToVehiclePreCheckStateActiveMission:
-                    mainWindow.showMessageDialog(qsTr("Send To Vehicle"), qsTr("Current mission must be paused prior to uploading a new Plan"))
-                    break
-                case MissionController.SendToVehiclePreCheckStateFirwmareVehicleMismatch:
-                    mainWindow.showComponentDialog(firmwareOrVehicleMismatchUploadDialogComponent, qsTr("Plan Upload"), mainWindow.showDialogDefaultWidth, StandardButton.Ok | StandardButton.Cancel)
-                    break
+            case MissionController.SendToVehiclePreCheckStateOk:
+                sendToVehicle()
+                break
+            case MissionController.SendToVehiclePreCheckStateActiveMission:
+                mainWindow.showMessageDialog(qsTr("Send To Vehicle"), qsTr("Current mission must be paused prior to uploading a new Plan"))
+                break
+            case MissionController.SendToVehiclePreCheckStateFirwmareVehicleMismatch:
+                mainWindow.showComponentDialog(firmwareOrVehicleMismatchUploadDialogComponent, qsTr("Plan Upload"), mainWindow.showDialogDefaultWidth, StandardButton.Ok | StandardButton.Cancel)
+                break
             }
         }
 
@@ -1232,6 +1233,78 @@ Item {
                     onClicked: {
                         dropPanel.hide()
                         mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
+                    }
+                }
+            }
+            FlightDataFetcher{
+                id: fDF
+            }
+            SectionHeader {
+                id:                 fetchCoordinates
+                Layout.fillWidth:   true
+                text:               qsTr("Missions")
+            }
+
+
+            RowLayout {
+
+                Layout.fillWidth:   true
+                spacing:            _margin
+
+                QGCButton {
+                    id: getCoordinatesButton
+                    text: "Get Missions"
+                    Layout.fillWidth:   true
+
+                    onClicked: {
+                        fDF.printMessage("Fetching Data Process Initiated");
+                        fDF.callAPI();
+                        popup.open();
+                    }
+                    Popup {
+                        id: popup
+                        parent: Overlay.overlay
+                        background: Rectangle {
+                            anchors.fill: popup
+                            color: qgcPal.windowShade
+                        }
+
+                        x: Math.round((parent.width - width) / 2)
+                        y: Math.round((parent.height - height) / 2)
+                        width:  parent.width/2.5
+                        height: parent.height/2.5
+                        modal: true
+                        focus: true
+
+                        contentItem: Rectangle {
+                            id: popupContent
+                            color:         qgcPal.windowShade
+                            property string missionSelected : "" //need a global variable to store selected mission information
+                            ColumnLayout {
+                                QGCLabel {
+                                    text:       qsTr("Missions")
+                                }
+                                QGCComboBox {
+                                    id:             missionCombo
+                                    model:          fDF.getMissions()
+                                    Layout.preferredWidth:  popupContent.width
+                                    onActivated: {
+                                        popupContent.missionSelected = textAt(index)
+                                        console.log(textAt(index))
+                                        _planMasterController.loadMissionFromAzure(fDF.getCoordinates(textAt(index)));
+                                        popup.close();
+                                        dropPanel.hide()
+                                    }
+                                    Component.onCompleted: {
+                                        var index = missionCombo.find(popupContent.missionSelected )
+                                        if(index < 0) index = 0
+                                        missionCombo.currentIndex = index
+                                    }
+                                }
+
+                            }
+                        }
+
                     }
                 }
             }

@@ -167,6 +167,27 @@ void MissionItem::save(QJsonObject& json) const
     QJsonArray rgParams =  { param1(), param2(), param3(), param4(), param5(), param6(), param7() };
     json[_jsonParamsKey] = rgParams;
 }
+bool MissionItem::load(const QJsonValue& jsonMissionCoordinates)
+{
+//    qDebug() <<"assetId: "<< jsonMissionCoordinates["assetId"].toString();
+//    qDebug() <<"long ->  "<< jsonMissionCoordinates["longitude"].toDouble();
+//    qDebug() <<"lat  ->  " <<jsonMissionCoordinates["latitude"].toDouble();
+//    qDebug() <<"lat  ->  " <<jsonMissionCoordinates["altitude"].toDouble();
+    setCommand((MAV_CMD)16);   // Has to be first since it triggers defaults to be set, which are then override by below set calls
+    setSequenceNumber(0);//setsequence
+    setIsCurrentItem(false);
+    setFrame((MAV_FRAME) QGroundControlQmlGlobal::AltitudeModeTerrainFrame ); // Frame...
+    setParam1(0); // Param 1
+    setParam2(0); // Param 2
+    setParam3(0); // Param 3
+    setParam4(0); // Param 4
+    setParam5(jsonMissionCoordinates["latitude"].toDouble()); // Lat
+    setParam6(jsonMissionCoordinates["longitude"].toDouble()); // Lon
+    setParam7(50); // Alt over ground (AGL) //jsonMissionCoordinates["altitude"].toDouble()
+    setAutoContinue(true);// Auto Continue...
+    eSmartMission = true;
+    return true;
+}
 
 bool MissionItem::load(QTextStream &loadStream)
 {

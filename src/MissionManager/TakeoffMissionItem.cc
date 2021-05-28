@@ -139,7 +139,15 @@ void TakeoffMissionItem::_initLaunchTakeoffAtSameLocation(void)
         setLaunchTakeoffAtSameLocation(true);
     }
 }
-
+bool TakeoffMissionItem::load(const QJsonValue & assetCoordinates)
+{
+    bool success = SimpleMissionItem::load(assetCoordinates);
+    if (success) {
+        _initLaunchTakeoffAtSameLocation();
+    }
+    _wizardMode = false; // Always be off for loaded items
+    return success;
+}
 bool TakeoffMissionItem::load(QTextStream &loadStream)
 {
     bool success = SimpleMissionItem::load(loadStream);

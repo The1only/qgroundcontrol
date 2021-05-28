@@ -350,7 +350,15 @@ void PlanMasterController::sendToVehicle(void)
         setDirty(false);
     }
 }
-
+void PlanMasterController::loadMissionFromAzure(QJsonArray assetCoordinates)
+{
+    bool success = false;
+    if (!_missionController.loadMissionFromAzure(assetCoordinates)) {
+        qgcApp()->showAppMessage("Error Load Mission Plan from Azure");
+    } else {
+        success = true;
+    }
+}
 void PlanMasterController::loadFromFile(const QString& filename)
 {
     QString errorString;

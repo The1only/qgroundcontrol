@@ -49,7 +49,7 @@ public:
     // Overrides from SimpleMissionItem
     bool load(QTextStream &loadStream) final;
     bool load(const QJsonObject& json, int sequenceNumber, QString& errorString) final;
-
+    bool load(const QJsonValue & assetCoordinates);
     //void setDirty(bool dirty) final;
 
 signals:
