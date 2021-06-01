@@ -49,6 +49,7 @@ public:
     Q_PROPERTY(QString                  kmlFileExtension        READ kmlFileExtension                       CONSTANT)
     Q_PROPERTY(QString                  currentPlanFile         READ currentPlanFile                        NOTIFY currentPlanFileChanged)
     Q_PROPERTY(QStringList              loadNameFilters         READ loadNameFilters                        CONSTANT)                       ///< File filter list loading plan files
+    Q_PROPERTY(QStringList              loadImageFilters         READ loadImageFilters                        CONSTANT)                       ///< File filter list for uploading Images
     Q_PROPERTY(QStringList              saveNameFilters         READ saveNameFilters                        CONSTANT)                       ///< File filter list saving plan files
     Q_PROPERTY(QmlObjectListModel*      planCreators            MEMBER _planCreators                        NOTIFY planCreatorsChanged)
 
@@ -95,6 +96,7 @@ public:
     QString     kmlFileExtension(void) const;
     QString     currentPlanFile (void) const { return _currentPlanFile; }
     QStringList loadNameFilters (void) const;
+    QStringList loadImageFilters (void) const;
     QStringList saveNameFilters (void) const;
     bool        isEmpty         (void) const;
 

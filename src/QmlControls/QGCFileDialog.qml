@@ -22,6 +22,7 @@ Item {
 
     signal acceptedForLoad(string file)
     signal acceptedForSave(string file)
+    signal acceptedImageForLoad(string file)
     signal rejected
 
     function openForLoad() {
@@ -32,7 +33,15 @@ Item {
             fullFileDialog.open()
         }
     }
-
+    function openImageForLoad() {
+        _openForLoad = true
+        if (_mobileDlg && folder.length !== 0) {
+            // have to be customized for mobile view
+            mainWindow.showComponentDialog(mobileFileOpenDialog, title, mainWindow.showDialogDefaultWidth, StandardButton.Cancel)
+        } else {
+            fullImageDialog.open()
+        }
+    }
     function openForSave() {
         _openForLoad = false
         if (_mobileDlg && folder.length !== 0) {
@@ -101,6 +110,22 @@ Item {
                 _root.acceptedForLoad(controller.urlToLocalFile(fileUrl))
             } else {
                 _root.acceptedForSave(controller.urlToLocalFile(fileUrl))
+            }
+        }
+        onRejected: _root.rejected()
+    }
+    FileDialog {
+        id:             fullImageDialog
+        folder:         "file:///" + _root.folder
+        nameFilters:    _root.nameFilters ? _root.nameFilters : []
+        title:          _root.title
+        selectExisting: _root.selectExisting
+        selectMultiple: false
+        selectFolder:   _root.selectFolder
+
+        onAccepted: {
+            if (_openForLoad) {
+                _root.acceptedImageForLoad(controller.urlToLocalFile(fileUrl))
             }
         }
         onRejected: _root.rejected()

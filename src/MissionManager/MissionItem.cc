@@ -169,10 +169,6 @@ void MissionItem::save(QJsonObject& json) const
 }
 bool MissionItem::load(const QJsonValue& jsonMissionCoordinates)
 {
-//    qDebug() <<"assetId: "<< jsonMissionCoordinates["assetId"].toString();
-//    qDebug() <<"long ->  "<< jsonMissionCoordinates["longitude"].toDouble();
-//    qDebug() <<"lat  ->  " <<jsonMissionCoordinates["latitude"].toDouble();
-//    qDebug() <<"lat  ->  " <<jsonMissionCoordinates["altitude"].toDouble();
     setCommand((MAV_CMD)16);   // Has to be first since it triggers defaults to be set, which are then override by below set calls
     setSequenceNumber(0);//setsequence
     setIsCurrentItem(false);

@@ -744,6 +744,7 @@ HEADERS += \
     src/Vehicle/VehicleVibrationFactGroup.h \
     src/Vehicle/VehicleWindFactGroup.h \
     src/VehicleSetup/JoystickConfigController.h \
+    src/api.h \
     src/comm/LinkConfiguration.h \
     src/comm/LinkInterface.h \
     src/comm/LinkManager.h \
@@ -758,7 +759,6 @@ HEADERS += \
     src/uas/UASMessageHandler.h \
     src/AnalyzeView/GeoTagController.h \
     src/AnalyzeView/ExifParser.h \
-    src/flightdatafetcher.h \
 
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
@@ -975,6 +975,7 @@ SOURCES += \
     src/Vehicle/VehicleVibrationFactGroup.cc \
     src/Vehicle/VehicleWindFactGroup.cc \
     src/VehicleSetup/JoystickConfigController.cc \
+    src/api.cpp \
     src/comm/LinkConfiguration.cc \
     src/comm/LinkInterface.cc \
     src/comm/LinkManager.cc \
@@ -988,8 +989,7 @@ SOURCES += \
     src/uas/UAS.cc \
     src/uas/UASMessageHandler.cc \
     src/AnalyzeView/GeoTagController.cc \
-    src/AnalyzeView/ExifParser.cc \
-    src/flightdatafetcher.cpp
+    src/AnalyzeView/ExifParser.cc
 
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {

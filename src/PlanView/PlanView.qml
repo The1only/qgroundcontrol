@@ -28,6 +28,8 @@ import QGroundControl.Airspace          1.0
 import QGroundControl.Airmap            1.0
 import FlightDataFetcher 1.0
 
+
+
 Item {
     id: _root
 
@@ -61,7 +63,7 @@ Item {
     readonly property int       _layerGeoFence:             2
     readonly property int       _layerRallyPoints:          3
     readonly property string    _armedVehicleUploadPrompt:  qsTr("Vehicle is currently armed. Do you want to upload the mission to the vehicle?")
-
+    property string selectedMissionID: ""
     function mapCenter() {
         var coordinate = editorMap.center
         coordinate.latitude  = coordinate.latitude.toFixed(_decimalPlaces)
@@ -91,7 +93,9 @@ Item {
         usePlannedHomePosition:     true
         planMasterController:       _planMasterController
     }
-
+    FlightDataFetcher{
+        id: fDF
+    }
     on_AirspaceEnabledChanged: {
         if(QGroundControl.airmapSupported) {
             if(_airspaceEnabled) {
@@ -273,7 +277,13 @@ Item {
             fileDialog.nameFilters =    _planMasterController.loadNameFilters
             fileDialog.openForLoad()
         }
-
+        function loadImages() {
+            fileDialog.title =          qsTr("Select Image to Upload")
+            // fileDialog.planFiles =      true
+            fileDialog.selectExisting = true
+            fileDialog.nameFilters =    _planMasterController.loadImageFilters
+            fileDialog.openImageForLoad()
+        }
         function saveToSelectedFile() {
             if (!checkReadyForSaveUpload(true /* save */)) {
                 return
@@ -375,6 +385,11 @@ Item {
             _planMasterController.loadFromFile(file)
             _planMasterController.fitViewportToItems()
             _missionController.setCurrentPlanViewSeqNum(0, true)
+            close()
+        }
+        onAcceptedImageForLoad:{
+            console.log(file)
+            fDF.postAPI(file,selectedMissionID);
             close()
         }
     }
@@ -1236,17 +1251,13 @@ Item {
                     }
                 }
             }
-            FlightDataFetcher{
-                id: fDF
-            }
             SectionHeader {
                 id:                 fetchCoordinates
                 Layout.fillWidth:   true
                 text:               qsTr("Missions")
             }
-
-
             RowLayout {
+
 
                 Layout.fillWidth:   true
                 spacing:            _margin
@@ -1255,57 +1266,73 @@ Item {
                     id: getCoordinatesButton
                     text: "Get Missions"
                     Layout.fillWidth:   true
-
                     onClicked: {
                         fDF.printMessage("Fetching Data Process Initiated");
-                        fDF.callAPI();
+                        fDF.getAPI();
                         popup.open();
                     }
-                    Popup {
-                        id: popup
-                        parent: Overlay.overlay
-                        background: Rectangle {
-                            anchors.fill: popup
-                            color: qgcPal.windowShade
-                        }
 
-                        x: Math.round((parent.width - width) / 2)
-                        y: Math.round((parent.height - height) / 2)
-                        width:  parent.width/2.5
-                        height: parent.height/2.5
-                        modal: true
-                        focus: true
+                }
+                QGCButton {
+                    id: uploadMissionImages
+                    text: "Upload Mission Images"
+                    Layout.fillWidth:   true
 
-                        contentItem: Rectangle {
-                            id: popupContent
-                            color:         qgcPal.windowShade
-                            property string missionSelected : "" //need a global variable to store selected mission information
-                            ColumnLayout {
-                                QGCLabel {
-                                    text:       qsTr("Missions")
-                                }
-                                QGCComboBox {
-                                    id:             missionCombo
-                                    model:          fDF.getMissions()
-                                    Layout.preferredWidth:  popupContent.width
-                                    onActivated: {
-                                        popupContent.missionSelected = textAt(index)
-                                        console.log(textAt(index))
-                                        _planMasterController.loadMissionFromAzure(fDF.getCoordinates(textAt(index)));
-                                        popup.close();
-                                        dropPanel.hide()
-                                    }
-                                    Component.onCompleted: {
-                                        var index = missionCombo.find(popupContent.missionSelected )
-                                        if(index < 0) index = 0
-                                        missionCombo.currentIndex = index
-                                    }
-                                }
-
-                            }
-                        }
-
+                    onClicked: {
+                        fDF.printMessage("Uploading Mission Images");
+                        dropPanel.hide()
+                        _planMasterController.loadImages();
                     }
+                }
+
+                Popup {
+                    id: popup
+                    parent: Overlay.overlay
+                    background: Rectangle {
+                        anchors.fill: popup
+                        color: qgcPal.windowShade
+                    }
+
+                    x: Math.round((parent.width - width) / 2)
+                    y: Math.round((parent.height - height) / 2)
+                    width:  parent.width/2.5
+                    height: parent.height/2.5
+                    modal: true
+                    focus: true
+
+                    contentItem: Rectangle {
+                        id: popupContent
+                        color:         qgcPal.windowShade
+                        property string missionSelected : "" //need a global variable to store selected mission information
+                        ColumnLayout {
+                            QGCLabel {
+                                text:       qsTr("Missions")
+                            }
+                            QGCComboBox {
+                                id:             missionCombo
+                                model:          fDF.getMissions()
+                                Layout.preferredWidth:  popupContent.width
+                                onActivated: {
+                                    popupContent.missionSelected = textAt(index)
+                                    console.log(textAt(index))
+                                    // Getting of Coordinaes of the Selected mission and sending it to our loader function
+                                    var selectedMissionTitle = textAt(index);
+                                    _planMasterController.loadMissionFromAzure(fDF.getCoordinates(selectedMissionTitle));
+                                    selectedMissionID = fDF.getSelectedMissionID(selectedMissionTitle);
+                                    console.log(selectedMissionID);
+                                    popup.close();
+                                    dropPanel.hide()
+                                }
+                                Component.onCompleted: {
+                                    var index = missionCombo.find(popupContent.missionSelected )
+                                    if(index < 0) index = 0
+                                    missionCombo.currentIndex = index
+                                }
+                            }
+
+                        }
+                    }
+
                 }
             }
         }

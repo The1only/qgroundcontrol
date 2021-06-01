@@ -2660,11 +2660,9 @@ void MissionController::setGlobalAltitudeMode(QGroundControlQmlGlobal::AltitudeM
     }
 }
 bool MissionController::loadMissionFromAzure(QJsonArray assetCoordinates){
-   qDebug() <<"inLoad from azure";
+
    QString     errorStr;
    QString     errorMessage = tr("Mission: %1");
-
-
    setGlobalAltitudeMode(QGroundControlQmlGlobal::AltitudeModeNone);   // Mixed mode
 
    QmlObjectListModel* loadedVisualItems = new QmlObjectListModel(this);

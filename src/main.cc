@@ -24,7 +24,7 @@
 #include "SerialLink.h"
 #include <QtQml>
 //#include "sosCaller.h"
-#include "flightdatafetcher.h"
+#include "api.h"
 
 #ifndef __mobile__
     #include "QGCSerialPortInfo.h"

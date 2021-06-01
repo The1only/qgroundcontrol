@@ -1,25 +1,25 @@
 #ifndef OAUTHWRAPPER_H
 #define OAUTHWRAPPER_H
-#include <QObject>
-#include <QtNetworkAuth>
 #include <QOAuth2AuthorizationCodeFlow>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QUrl>
-#include <QUrlQuery>
-#include <QOAuthHttpServerReplyHandler>
-#include <QDesktopServices>
 
-class OAuthWrapper:public QObject
-{
+class OAuthWrapper : public QObject {
+    Q_OBJECT
 public:
-    explicit OAuthWrapper(QObject *parent = nullptr);
-    Q_INVOKABLE void click();
+    OAuthWrapper(QObject *parent=nullptr);
+    virtual ~OAuthWrapper();
+
+public slots:
+    void authenticate();
+
+signals:
+    void gotToken(const QString& token);
+
 private:
-    QOAuth2AuthorizationCodeFlow oAuthRequest;
-   QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction();
+    QOAuth2AuthorizationCodeFlow * azure;
 };
+
+
+
 
 #endif // OAUTHWRAPPER_H
 

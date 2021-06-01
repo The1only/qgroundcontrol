@@ -750,7 +750,7 @@ ApplicationWindow {
                      anchors.horizontalCenter: sosCallDialogue.horizontalCenter
                      anchors.top: sosCallDialogue.top
                      anchors.topMargin: 5
-                     color: black
+                     //color: black
                      font.family: "Helvetica"
                      font.pointSize: 9
 
