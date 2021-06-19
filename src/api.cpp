@@ -114,33 +114,26 @@ QJsonArray FlightDataFetcher::getCoordinates(QString mTitle)
     }
     return assetCoordinates;
 }
-void FlightDataFetcher::postMultipleImagesAPI(QList<QUrl> urls,QString missionID) {
+void FlightDataFetcher::postImagesAPI(QList<QString> urls,QString missionID) {
 
-    qDebug() << "Inside Post Request Caller Function" ;
-    qDebug() << "Image To be Uploaded :  " + urls[0].toString() ;
-    qDebug() << "Image To be Uploaded :  " + urls[1].toString() ;
-
-
-
-
-}
-void FlightDataFetcher::postAPI(QString fileName,QString missionID) {
-    qDebug() << "Inside Post Request Caller Function" ;
-    qDebug() << "File To be Uploaded :  " + fileName ;
+    qDebug() << "Inside Post Request Caller Function";
 
     QNetworkAccessManager * manager= new QNetworkAccessManager(this);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostFinish(QNetworkReply*)));
     connect(manager, SIGNAL(finished(QNetworkReply*)), manager, SLOT(deleteLater()));
 
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-    QHttpPart imagePart;
-    imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/jpeg"));
-    imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\";filename=\"1.jpg\"")); //QVariant("name=\"file\"")); //
-    QFile *file = new QFile(fileName);
-    file->open(QIODevice::ReadOnly);
-    imagePart.setBodyDevice(file);
-    file->setParent(multiPart); // we cannot delete the file now, so delete it with the multiPart
-    multiPart->append(imagePart);
+
+    for (int i=0;i<urls.size();i++) {
+        qDebug() << "Image To be Uploaded :  " + urls[i];
+        QFile *file = new QFile(urls[i]);
+        QHttpPart filePart;
+        filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\""+ file->fileName() + "\""));
+        file->open(QIODevice::ReadOnly);
+        filePart.setBodyDevice(file);
+        file->setParent(multiPart); // we cannot delete the file now, so delete it with the multiPart
+        multiPart->append(filePart);
+    }
     QNetworkRequest request(QUrl("https://dronefacade-new.stamp-we-dev-01.service.esmartapi.com/api/v2/missions/"+ missionID +"/upload")); //26814280-f49b-45a2-a809-6276bad3fc8f
     auto header = QString("Bearer %1").arg(accessToken);
     request.setRawHeader(QByteArray("Authorization"), header.toUtf8());
@@ -148,7 +141,9 @@ void FlightDataFetcher::postAPI(QString fileName,QString missionID) {
     request.setRawHeader("x-source", "m-gs-dji");
     QNetworkReply *reply = manager->post(request, multiPart);
     multiPart->setParent(reply);
+
 }
+
 void FlightDataFetcher::onPostFinish(QNetworkReply *rep)
 {
     QString jsonString = QString::fromUtf8(rep->readAll());

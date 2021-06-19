@@ -13,7 +13,7 @@
 
 #include <QObject>
 #include <QUrl>
-
+#include <string>
 #include "QGCLoggingCategory.h"
 
 Q_DECLARE_LOGGING_CATEGORY(QGCFileDialogControllerLog)
@@ -36,13 +36,14 @@ public:
     /// Deletes the file specified by the fully qualified file name
     Q_INVOKABLE void deleteFile(const QString& filename);
 
-    Q_INVOKABLE QString urlToLocalFile(QUrl url) { return url.toLocalFile(); }
+    // Q_INVOKABLE QString urlToLocalFile(QUrl url) { return url.toLocalFile(); }
 
-    Q_INVOKABLE QList<QUrl> urlsToLocalFile(QList<QUrl> urls) {
-        for(int i = 0; i< urls.length() ; i++) {
-            urls[i]=urls[i].toLocalFile();
+    Q_INVOKABLE QList<QString> urlsToLocalFile(QList<QUrl> urls) {
+        QList<QString> urlArray;
+        for(int i =0 ;i< urls.length();i++) {
+            urlArray.append(urls[i].toLocalFile());
         }
-        return urls;
+        return urlArray;
     }
 
     /// Important: Should only be used in mobile builds where default save location cannot be changed.

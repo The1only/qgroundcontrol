@@ -126,13 +126,7 @@ Item {
 
         onAccepted: {
             if (_openForLoad) {
-
-                if(fileUrl != ""){
-                    _root.acceptedImageForLoad(controller.urlToLocalFile(fileUrl))
-                }
-                else {
-                    _root.acceptedImagesForLoad(controller.urlsToLocalFile(fileUrls))
-                }
+                _root.acceptedImagesForLoad(controller.urlsToLocalFile(fileUrls))
             }
         }
         onRejected: _root.rejected()

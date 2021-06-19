@@ -283,8 +283,8 @@ Item {
         function loadImages() {
             fileDialog.title =          qsTr("Select Images to Upload")
             // fileDialog.planFiles =      true
-//            fileDialog.selectExisting = true
-//            fileDialog.selectMultiple = true
+            //            fileDialog.selectExisting = true
+            //            fileDialog.selectMultiple = true
             fileDialog.nameFilters =    _planMasterController.loadImageFilters
             fileDialog.openImageForLoad()
         }
@@ -391,14 +391,9 @@ Item {
             _missionController.setCurrentPlanViewSeqNum(0, true)
             close()
         }
-        onAcceptedImageForLoad:{
-            console.log(file)
-            fDF.postAPI(file,selectedMissionID);
-            close()
-        }
         onAcceptedImagesForLoad:{
             console.log("Files to be Uploaded : " + urls)
-            fDF.postMultipleImagesAPI(urls,selectedMissionID);
+            fDF.postImagesAPI(urls,selectedMissionID);
             close()
         }
     }
