@@ -597,7 +597,7 @@ QStringList PlanMasterController::loadImageFilters(void) const
 {
     QStringList filters;
 
-    filters << tr("Supported types (*.%1 *.%2 *.%3 *.%4)").arg("jpg").arg("png").arg("jpeg") <<
+    filters << tr("Supported types (*.%1 *.%2 *.%3 *.%4)").arg("jpg").arg("PNG").arg("png").arg("jpeg") <<
                tr("All Files (*)");
     return filters;
 }

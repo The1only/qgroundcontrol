@@ -38,6 +38,13 @@ public:
 
     Q_INVOKABLE QString urlToLocalFile(QUrl url) { return url.toLocalFile(); }
 
+    Q_INVOKABLE QList<QUrl> urlsToLocalFile(QList<QUrl> urls) {
+        for(int i = 0; i< urls.length() ; i++) {
+            urls[i]=urls[i].toLocalFile();
+        }
+        return urls;
+    }
+
     /// Important: Should only be used in mobile builds where default save location cannot be changed.
     /// Returns the standard QGC location portion of a fully qualified folder path.
     /// Example: "/Users/Don/Document/QGroundControl/Missions" returns "QGroundControl/Missions"

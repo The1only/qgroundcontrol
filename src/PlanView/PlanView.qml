@@ -14,6 +14,7 @@ import QtPositioning    5.3
 import QtQuick.Layouts  1.2
 import QtQuick.Window   2.2
 import QtQuick.Controls 2.12
+import QtQml 2.12
 
 import QGroundControl                   1.0
 import QGroundControl.FlightMap         1.0
@@ -81,7 +82,9 @@ Item {
             }
         }
     }
-
+    function setTextField(text){
+        console.log("setTextField: " + text)
+    }
     property bool _firstMissionLoadComplete:    false
     property bool _firstFenceLoadComplete:      false
     property bool _firstRallyLoadComplete:      false
@@ -278,9 +281,10 @@ Item {
             fileDialog.openForLoad()
         }
         function loadImages() {
-            fileDialog.title =          qsTr("Select Image to Upload")
+            fileDialog.title =          qsTr("Select Images to Upload")
             // fileDialog.planFiles =      true
-            fileDialog.selectExisting = true
+//            fileDialog.selectExisting = true
+//            fileDialog.selectMultiple = true
             fileDialog.nameFilters =    _planMasterController.loadImageFilters
             fileDialog.openImageForLoad()
         }
@@ -390,6 +394,11 @@ Item {
         onAcceptedImageForLoad:{
             console.log(file)
             fDF.postAPI(file,selectedMissionID);
+            close()
+        }
+        onAcceptedImagesForLoad:{
+            console.log("Files to be Uploaded : " + urls)
+            fDF.postMultipleImagesAPI(urls,selectedMissionID);
             close()
         }
     }
@@ -1255,12 +1264,35 @@ Item {
                 id:                 fetchCoordinates
                 Layout.fillWidth:   true
                 text:               qsTr("Missions")
+                property var authorizeBtnClicked: false
             }
             RowLayout {
-
-
+                QGCButton {
+                    id: authorization
+                    text: "Authorize App"
+                    Layout.fillWidth:   true
+                    onClicked: {
+                        fDF.printMessage("Authorizing App");
+                        fDF.authorize();
+                        dropPanel.hide();
+                        fetchCoordinates.authorizeBtnClicked = true
+                    }
+                }
+            }
+            RowLayout {
                 Layout.fillWidth:   true
                 spacing:            _margin
+                Timer {
+                    id: myTimer
+                    interval: 5000
+
+                    onTriggered: {
+                        getCoordinatesButton.openMyPopup()
+                        waitingAnimation.active = false
+                    }
+
+                }
+
 
                 QGCButton {
                     id: getCoordinatesButton
@@ -1269,7 +1301,94 @@ Item {
                     onClicked: {
                         fDF.printMessage("Fetching Data Process Initiated");
                         fDF.getAPI();
-                        popup.open();
+                        openWaitingAnimation()
+                        myTimer.start();
+                        uploadMissionImages.enabled = true
+
+                    }
+                    Loader {
+                        id: waitingAnimation
+                        asynchronous: true
+                        active: false
+                        source: "qrc:/qml/WaitingAnimation.qml"
+                        onLoaded: item.open()
+                    }
+
+                    function openWaitingAnimation() {
+                        if( waitingAnimation.active )
+                            waitingAnimation.item.open()
+                        else
+                            waitingAnimation.active = true
+                    }
+                    Loader {
+                        id: popupLoader
+                        asynchronous: true
+                        active: false
+                        //source: "qrc:/qml/MissionModalBox.qml"
+                        sourceComponent: Popup {
+                            id: popup
+                            parent: Overlay.overlay
+                            background: Rectangle {
+                                color: qgcPal.windowShade
+                            }
+
+                            x: Math.round((parent.width - width) / 2)
+                            y: Math.round((parent.height - height) / 2)
+                            width:  parent.width/2.5
+                            height: parent.height/2.5
+                            modal: true
+                            focus: true
+
+                            contentItem: Rectangle {
+                                id: popupContent
+                                color:         qgcPal.windowShade
+                                property string missionSelected : "" //need a global variable to store selected mission information
+                                ColumnLayout {
+                                    QGCLabel {
+                                        text:       qsTr("Missions")
+                                    }
+                                    QGCComboBox {
+                                        id:             missionCombo
+                                        model:          fDF.getMissions()
+                                        Layout.preferredWidth:  popupContent.width
+                                        onActivated: {
+                                            popupContent.missionSelected = textAt(index)
+                                            console.log(textAt(index))
+                                            // Getting of Coordinaes of the Selected mission and sending it to our loader function
+                                            var selectedMissionTitle = textAt(index);
+                                            _planMasterController.loadMissionFromAzure(fDF.getCoordinates(selectedMissionTitle));
+                                            selectedMissionID = fDF.getSelectedMissionID(selectedMissionTitle);
+                                            console.log(selectedMissionID);
+                                            popup.close();
+                                            dropPanel.hide()
+                                        }
+                                        Component.onCompleted: {
+                                            var index = missionCombo.find(popupContent.missionSelected )
+                                            if(index < 0) index = 0
+                                            missionCombo.currentIndex = index
+                                        }
+                                    }
+
+                                }
+                            }
+
+
+                        }
+                        onLoaded: item.open()
+                    }
+
+                    function openMyPopup() {
+                        if( popupLoader.active )
+                            popupLoader.item.open()
+                        else
+                            popupLoader.active = true
+                    }
+                    function delay(delayTime, cb) {
+                        timer = new Timer();
+                        timer.interval = delayTime;
+                        timer.repeat = false;
+                        timer.triggered.connect(cb);
+                        timer.start();
                     }
 
                 }
@@ -1277,64 +1396,14 @@ Item {
                     id: uploadMissionImages
                     text: "Upload Mission Images"
                     Layout.fillWidth:   true
-
                     onClicked: {
                         fDF.printMessage("Uploading Mission Images");
                         dropPanel.hide()
                         _planMasterController.loadImages();
                     }
                 }
-
-                Popup {
-                    id: popup
-                    parent: Overlay.overlay
-                    background: Rectangle {
-                        anchors.fill: popup
-                        color: qgcPal.windowShade
-                    }
-
-                    x: Math.round((parent.width - width) / 2)
-                    y: Math.round((parent.height - height) / 2)
-                    width:  parent.width/2.5
-                    height: parent.height/2.5
-                    modal: true
-                    focus: true
-
-                    contentItem: Rectangle {
-                        id: popupContent
-                        color:         qgcPal.windowShade
-                        property string missionSelected : "" //need a global variable to store selected mission information
-                        ColumnLayout {
-                            QGCLabel {
-                                text:       qsTr("Missions")
-                            }
-                            QGCComboBox {
-                                id:             missionCombo
-                                model:          fDF.getMissions()
-                                Layout.preferredWidth:  popupContent.width
-                                onActivated: {
-                                    popupContent.missionSelected = textAt(index)
-                                    console.log(textAt(index))
-                                    // Getting of Coordinaes of the Selected mission and sending it to our loader function
-                                    var selectedMissionTitle = textAt(index);
-                                    _planMasterController.loadMissionFromAzure(fDF.getCoordinates(selectedMissionTitle));
-                                    selectedMissionID = fDF.getSelectedMissionID(selectedMissionTitle);
-                                    console.log(selectedMissionID);
-                                    popup.close();
-                                    dropPanel.hide()
-                                }
-                                Component.onCompleted: {
-                                    var index = missionCombo.find(popupContent.missionSelected )
-                                    if(index < 0) index = 0
-                                    missionCombo.currentIndex = index
-                                }
-                            }
-
-                        }
-                    }
-
-                }
             }
         }
     }
 }
+

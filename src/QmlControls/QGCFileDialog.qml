@@ -23,6 +23,7 @@ Item {
     signal acceptedForLoad(string file)
     signal acceptedForSave(string file)
     signal acceptedImageForLoad(string file)
+    signal acceptedImagesForLoad(var urls)
     signal rejected
 
     function openForLoad() {
@@ -119,13 +120,19 @@ Item {
         folder:         "file:///" + _root.folder
         nameFilters:    _root.nameFilters ? _root.nameFilters : []
         title:          _root.title
-        selectExisting: _root.selectExisting
-        selectMultiple: false
+        selectExisting: true
+        selectMultiple: true
         selectFolder:   _root.selectFolder
 
         onAccepted: {
             if (_openForLoad) {
-                _root.acceptedImageForLoad(controller.urlToLocalFile(fileUrl))
+
+                if(fileUrl != ""){
+                    _root.acceptedImageForLoad(controller.urlToLocalFile(fileUrl))
+                }
+                else {
+                    _root.acceptedImagesForLoad(controller.urlsToLocalFile(fileUrls))
+                }
             }
         }
         onRejected: _root.rejected()

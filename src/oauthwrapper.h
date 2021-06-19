@@ -1,6 +1,8 @@
 #ifndef OAUTHWRAPPER_H
 #define OAUTHWRAPPER_H
 #include <QOAuth2AuthorizationCodeFlow>
+#include <QWebEngineView>
+
 
 class OAuthWrapper : public QObject {
     Q_OBJECT
@@ -9,20 +11,16 @@ public:
     virtual ~OAuthWrapper();
 
 public slots:
-    void authenticate();
+    QString authenticate();
 
 signals:
     void gotToken(const QString& token);
 
+
 private:
     QOAuth2AuthorizationCodeFlow * azure;
+    QWebEngineView browser;
+    QString accessToken;
 };
 
-
-
-
-#endif // OAUTHWRAPPER_H
-
-
-
-
+#endif
