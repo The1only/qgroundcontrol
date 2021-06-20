@@ -99,6 +99,20 @@ Item {
     FlightDataFetcher{
         id: fDF
     }
+    Loader {
+        id: waitingAnimation
+        asynchronous: true
+        active: false
+        source: "qrc:/qml/WaitingAnimation.qml"
+        onLoaded: item.open()
+    }
+
+    function openWaitingAnimation() {
+        if( waitingAnimation.active )
+            waitingAnimation.item.open()
+        else
+            waitingAnimation.active = true
+    }
     on_AirspaceEnabledChanged: {
         if(QGroundControl.airmapSupported) {
             if(_airspaceEnabled) {
@@ -1287,8 +1301,6 @@ Item {
                     }
 
                 }
-
-
                 QGCButton {
                     id: getCoordinatesButton
                     text: "Get Missions"
@@ -1296,24 +1308,10 @@ Item {
                     onClicked: {
                         fDF.printMessage("Fetching Data Process Initiated");
                         fDF.getAPI();
-                        openWaitingAnimation()
-                        myTimer.start();
+                        _root.openWaitingAnimation()
+                        myTimer.start()
                         uploadMissionImages.enabled = true
 
-                    }
-                    Loader {
-                        id: waitingAnimation
-                        asynchronous: true
-                        active: false
-                        source: "qrc:/qml/WaitingAnimation.qml"
-                        onLoaded: item.open()
-                    }
-
-                    function openWaitingAnimation() {
-                        if( waitingAnimation.active )
-                            waitingAnimation.item.open()
-                        else
-                            waitingAnimation.active = true
                     }
                     Loader {
                         id: popupLoader
@@ -1346,7 +1344,10 @@ Item {
                                         id:             missionCombo
                                         model:          fDF.getMissions()
                                         Layout.preferredWidth:  popupContent.width
+
                                         onActivated: {
+                                            popup.close();
+                                            dropPanel.hide()
                                             popupContent.missionSelected = textAt(index)
                                             console.log(textAt(index))
                                             // Getting of Coordinaes of the Selected mission and sending it to our loader function
@@ -1354,8 +1355,7 @@ Item {
                                             _planMasterController.loadMissionFromAzure(fDF.getCoordinates(selectedMissionTitle));
                                             selectedMissionID = fDF.getSelectedMissionID(selectedMissionTitle);
                                             console.log(selectedMissionID);
-                                            popup.close();
-                                            dropPanel.hide()
+
                                         }
                                         Component.onCompleted: {
                                             var index = missionCombo.find(popupContent.missionSelected )
@@ -1378,23 +1378,75 @@ Item {
                         else
                             popupLoader.active = true
                     }
-                    function delay(delayTime, cb) {
-                        timer = new Timer();
-                        timer.interval = delayTime;
-                        timer.repeat = false;
-                        timer.triggered.connect(cb);
-                        timer.start();
-                    }
+
 
                 }
-                QGCButton {
-                    id: uploadMissionImages
-                    text: "Upload Mission Images"
-                    Layout.fillWidth:   true
-                    onClicked: {
-                        fDF.printMessage("Uploading Mission Images");
-                        dropPanel.hide()
-                        _planMasterController.loadImages();
+
+                Rectangle{
+                    id:uploadMissionImages
+                    width: 200
+                    height: 40
+                    property bool active: selectedMissionID ? true : false
+                    Button {
+                        hoverEnabled: true
+                        anchors.fill: parent
+                        palette {
+                            button: "#626270"
+
+                        }
+
+                        enabled: parent.active
+                        visible: parent.active
+
+                        contentItem: Text {
+                            text: qsTr("Upload Mission Images")
+                            color: parent.hovered ? "black" : "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Rectangle{
+                            id: myRectId
+                            anchors.fill: parent
+                            anchors.margins: 1
+                            color: "#FFF291"
+                            opacity : 0;
+                        }
+                        onHoveredChanged: {
+                            !hovered ? myRectId.opacity = 0  : myRectId.opacity = 1;
+                        }
+                        //  ToolTip.visible: hovered
+                        //  ToolTip.text: qsTr("Upload Mission Images")
+                        onClicked: {
+                            fDF.printMessage("Uploading Mission Images");
+                            console.log("Uploading Mission Images")
+                            dropPanel.hide()
+                            _planMasterController.loadImages();
+                        }
+                    }
+                    Button{
+                        id: disButton
+                        anchors.fill: parent
+                        palette {
+                            button: "#707070"
+                            buttonText: "white"
+                        }
+                        text: qsTr("Upload Mission Images")
+                        enabled: !parent.active
+                        visible: !parent.active
+
+                        contentItem: Text {
+                            text: parent.text
+                            font: parent.font
+                            opacity: enabled ? 1.0 : 0.3
+                            color: parent.down ? "#707070" : "#A6A6A6"
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideRight
+                        }
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Disabled: First Select Any Mission From Get Missions")
                     }
                 }
             }
