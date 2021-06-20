@@ -18,47 +18,85 @@ void FlightDataFetcher::authorize() {
     connect(connection, &OAuthWrapper::gotToken, [this](const QString& token) {
         qDebug() <<"Access Token Received." ;
         accessToken = token;
+        getParticpantId("ahmad.b.aslam@hiof.no");
     });
-
 }
-void FlightDataFetcher::getAPI() {
-    qDebug() << "Inside Get Request Caller Function" ;
+void FlightDataFetcher::getParticpantId(QString username){
+
+    qDebug() << "Inside Get Particpant ID Function" ;
     QNetworkAccessManager * mgr = new QNetworkAccessManager(this);
-    QUrl url = QUrl("https://dronefacade-new.stamp-we-dev-01.service.esmartapi.com/api/v2/missions?participantId=c74e2cc2-079f-45cf-9c0b-d43b710eeb84&source=m-gs-dji&withinDueDate=true"); //?participantId=c74e2cc2-079f-45cf-9c0b-d43b710eeb84&source=m-gs-dji&withinDueDate=true
+    QUrl url = QUrl("https://admin.common.service.esmartapi.com/api/users/" + username + "/applications/m-gs-dji-v2"); //?participantId=c74e2cc2-079f-45cf-9c0b-d43b710eeb84&source=m-gs-dji&withinDueDate=true
     QNetworkRequest request(url);
     auto header = QString("Bearer %1").arg(accessToken);
     request.setRawHeader("X-SortOrder", "Desc");
     request.setRawHeader("x-tenantkey", "esmart-dev");
     request.setRawHeader(QByteArray("Authorization"), header.toUtf8());
     mgr->get(request);
-    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(onGetFinish(QNetworkReply*)));
+    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(onGetParticpantIdFinish(QNetworkReply*)));
+    connect(mgr,SIGNAL(finished(QNetworkReply*)),mgr,SLOT(deleteLater()));
+
+}
+void FlightDataFetcher::onGetParticpantIdFinish(QNetworkReply *rep)
+{
+
+    QVariant statusCode = rep->attribute( QNetworkRequest::HttpStatusCodeAttribute );
+    int status = statusCode.toInt();
+    if ( status == 200 ) {
+        QString jsonString = QString::fromUtf8(rep->readAll());
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
+        QJsonArray responseArray = jsonDoc.array();
+        QJsonValue responseObj = responseArray[0];
+        QJsonArray particpantsArray = responseObj["participants"].toArray();
+        QJsonValue participantObj = particpantsArray[0];
+        QString participantId = participantObj["participantId"].toString();
+        qDebug() << participantId;
+        qDebug() << "Participants ID Fetched Successfull";
+        return;
+    }
+
+    if ( status != 200 )
+    {
+        QString reason = rep->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toString();
+        qDebug() << reason;
+    }
+}
+void FlightDataFetcher::getMissionAPI() {
+    qDebug() << "Inside Get Request Caller Function" ;
+    QNetworkAccessManager * mgr = new QNetworkAccessManager(this);
+    QUrl url = QUrl("https://dronefacade-new.stamp-we-dev-01.service.esmartapi.com/api/v2/missions?participantId=" + participantId + "&source=m-gs-dji&withinDueDate=true"); //?participantId=c74e2cc2-079f-45cf-9c0b-d43b710eeb84&source=m-gs-dji&withinDueDate=true
+    QNetworkRequest request(url);
+    auto header = QString("Bearer %1").arg(accessToken);
+    request.setRawHeader("X-SortOrder", "Desc");
+    request.setRawHeader("x-tenantkey", "esmart-dev");
+    request.setRawHeader(QByteArray("Authorization"), header.toUtf8());
+    mgr->get(request);
+    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(onGetMissionFinish(QNetworkReply*)));
     connect(mgr,SIGNAL(finished(QNetworkReply*)),mgr,SLOT(deleteLater()));
 }
 
 
-void FlightDataFetcher::onGetFinish(QNetworkReply *rep)
+void FlightDataFetcher::onGetMissionFinish(QNetworkReply *rep)
 {
     qDebug() << "Inside Get Request Callback Function :: onGetFinish" ;
-
-    QString jsonString = QString::fromUtf8(rep->readAll());
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
-    QJsonArray ary = jsonDoc.array();
-    deleteMissions();
-    foreach (const QJsonValue & value, ary)
-    {
-        QJsonObject obj = value.toObject();
-        QString title = obj["title"].toString();
-        QString id = obj["id"].toString();
-        QJsonArray assetCoordinates = obj["assetCoordinates"].toArray();
-        Mission* mission = new Mission(title,id,assetCoordinates);
-        missions.push_back(mission);
-    }
 
     QVariant statusCode = rep->attribute( QNetworkRequest::HttpStatusCodeAttribute );
     if ( !statusCode.isValid() )
         return;
     int status = statusCode.toInt();
     if(status == 200){
+        QString jsonString = QString::fromUtf8(rep->readAll());
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
+        QJsonArray ary = jsonDoc.array();
+        deleteMissions();
+        foreach (const QJsonValue & value, ary)
+        {
+            QJsonObject obj = value.toObject();
+            QString title = obj["title"].toString();
+            QString id = obj["id"].toString();
+            QJsonArray assetCoordinates = obj["assetCoordinates"].toArray();
+            Mission* mission = new Mission(title,id,assetCoordinates);
+            missions.push_back(mission);
+        }
         qDebug() <<"Response Received. Status : " <<status;
         qDebug() <<"Missions Received = "<< missions.size();
         qDebug() <<"API Call Successful" ;
@@ -148,7 +186,6 @@ void FlightDataFetcher::onPostFinish(QNetworkReply *rep)
 {
     QString jsonString = QString::fromUtf8(rep->readAll());
     QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
-    qDebug() << jsonDoc;
 
     QVariant statusCode = rep->attribute( QNetworkRequest::HttpStatusCodeAttribute );
     int status = statusCode.toInt();

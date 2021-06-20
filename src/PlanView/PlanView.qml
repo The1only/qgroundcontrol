@@ -1307,7 +1307,7 @@ Item {
                     Layout.fillWidth:   true
                     onClicked: {
                         fDF.printMessage("Fetching Data Process Initiated");
-                        fDF.getAPI();
+                        fDF.getMissionAPI();
                         _root.openWaitingAnimation()
                         myTimer.start()
                         uploadMissionImages.enabled = true

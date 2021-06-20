@@ -45,7 +45,6 @@ OAuthWrapper::OAuthWrapper(QObject *parent) : QObject(parent) {
         browser.show();
     });
 
-
     auto replyHandler = new QOAuthHttpServerReplyHandler(5000, this);
     connect(&browser, &QWebEngineView::urlChanged, [replyHandler, this](const QUrl & url){
         QString tempUrl =url.toEncoded();
@@ -66,8 +65,6 @@ QString OAuthWrapper::authenticate() {
     this->azure->grant();
     return accessToken;
 }
-
-
 
 OAuthWrapper::~OAuthWrapper() {
     delete this->azure;
