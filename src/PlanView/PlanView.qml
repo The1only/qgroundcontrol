@@ -406,7 +406,6 @@ Item {
             close()
         }
         onAcceptedImagesForLoad:{
-            console.log("Files to be Uploaded : " + urls)
             fDF.postImagesAPI(urls,selectedMissionID);
             close()
         }

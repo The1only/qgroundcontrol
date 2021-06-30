@@ -156,29 +156,31 @@ void FlightDataFetcher::postImagesAPI(QList<QString> urls,QString missionID) {
 
     qDebug() << "Inside Post Request Caller Function";
 
-    QNetworkAccessManager * manager= new QNetworkAccessManager(this);
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostFinish(QNetworkReply*)));
-    connect(manager, SIGNAL(finished(QNetworkReply*)), manager, SLOT(deleteLater()));
+    for(int i = 0; i <urls.size();i++) {
+        QString url = urls[i];
+        QNetworkAccessManager * manager= new QNetworkAccessManager(this);
+        connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onPostFinish(QNetworkReply*)));
+        connect(manager, SIGNAL(finished(QNetworkReply*)), manager, SLOT(deleteLater()));
 
-    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-    for (int i=0;i<urls.size();i++) {
-        qDebug() << "Image To be Uploaded :  " + urls[i];
-        QFile *file = new QFile(urls[i]);
+        QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+        qDebug() << "Image To be Uploaded :  " + url;
+        QFile *file = new QFile(url);
         QHttpPart filePart;
         filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\""+ file->fileName() + "\""));
         file->open(QIODevice::ReadOnly);
         filePart.setBodyDevice(file);
         file->setParent(multiPart); // we cannot delete the file now, so delete it with the multiPart
         multiPart->append(filePart);
+        QNetworkRequest request(QUrl("https://dronefacade-new.stamp-we-dev-01.service.esmartapi.com/api/v2/missions/"+ missionID +"/upload")); //26814280-f49b-45a2-a809-6276bad3fc8f
+        auto header = QString("Bearer %1").arg(accessToken);
+        request.setRawHeader(QByteArray("Authorization"), header.toUtf8());
+        request.setRawHeader("x-tenantkey", "esmart-dev");
+        request.setRawHeader("x-source", "m-gs-dji");
+        QNetworkReply *reply = manager->post(request, multiPart);
+        multiPart->setParent(reply);
     }
-    QNetworkRequest request(QUrl("https://dronefacade-new.stamp-we-dev-01.service.esmartapi.com/api/v2/missions/"+ missionID +"/upload")); //26814280-f49b-45a2-a809-6276bad3fc8f
-    auto header = QString("Bearer %1").arg(accessToken);
-    request.setRawHeader(QByteArray("Authorization"), header.toUtf8());
-    request.setRawHeader("x-tenantkey", "esmart-dev");
-    request.setRawHeader("x-source", "m-gs-dji");
-    QNetworkReply *reply = manager->post(request, multiPart);
-    multiPart->setParent(reply);
+
+
 
 }
 
@@ -189,14 +191,15 @@ void FlightDataFetcher::onPostFinish(QNetworkReply *rep)
 
     QVariant statusCode = rep->attribute( QNetworkRequest::HttpStatusCodeAttribute );
     int status = statusCode.toInt();
-    if ( status==200 )
+    if ( status==200 ) {
         qDebug() << "Upload Successfull";
-    return;
+    }
 
     if ( status != 200 )
     {
         QString reason = rep->attribute( QNetworkRequest::HttpReasonPhraseAttribute ).toString();
-        qDebug() << reason;
+        qDebug() <<"Status : "<< status;
+        qDebug() <<"Upload Failed : "<< reason;
     }
 }
 void FlightDataFetcher::deleteMissions() {
